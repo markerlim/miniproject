@@ -1,0 +1,190 @@
+∂body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f4f4f9;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+    width: 100%;
+    background: #007BFF;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.brand-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-links ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 15px;
+}
+
+.navbar-links ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+}
+
+.navbar-links ul li a:hover {
+    color: #d1e8ff;
+}
+
+.hamburger {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.menu-toggle:checked ~ .navbar-links {
+    display: flex;
+    flex-direction: column;
+    background-color: #007BFF;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.menu-toggle:checked ~ .navbar-links ul {
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .navbar-links {
+        display: none;
+    }
+
+    .hamburger {
+        display: block;
+    }
+    
+    .menu-toggle:checked ~ .navbar-links {
+        display: flex;
+    }
+}
+
+main.login-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    background-color: #f4f4f9;
+}
+
+main.login-page h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+main.login-page form {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+main.login-page .form-group {
+    margin-bottom: 15px;
+}
+
+main.login-page input[type="email"], 
+main.login-page input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+main.login-page button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+main.login-page button:hover {
+    background-color: #0056b3;
+}
+
+main.login-page .alternative-signin {
+    text-align: center;
+    margin-top: 20px;
+}
+
+main.login-page .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #DB4437;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+main.login-page .google-btn img {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.logout-btn {
+    background-color: #DB4437;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #a33228;
+}
