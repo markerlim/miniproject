@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Buying</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <nav class="navbar">
+          <div class="brand-title">Aegis</div>
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+          <label for="menu-toggle" class="hamburger">☰</label>
+          <div class="navbar-links">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/buyer/cart">Cart</a></li>
+              <li><a href="/logout" id="logoutForm">Logout</a></li>
+                        </ul>
+          </div>
+        </nav>
+      </header>
+      <div class="main-content">
+        <div class="card-container">
+          <div th:each="item : ${item}" class="card">
+            <img th:src="${item.image}" alt="Item Image" class="card-image" />
+            <div class="card-content">
+              <h2 th:text="${item.title}" class="card-title"></h2>
+              <p th:text="${item.content}" class="card-description"></p>
+              <p th:text="${item.price}" class="card-price"></p>
+              <p th:text="${item.qty}" class="card-qty"></p>
+            </div>
+          </div>
+        </div>
+        <a href="/buyer/clear-cart">
+          <button>Clear Cart</button>
+        </a>
+        <a href="/api/checkout/payment-link">
+          <button>CheckOut</button>
+        </a>
+        <div th:if="${message != null and message != ''}" class="message alert alert-success">
+            <p th:text="${message}"></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

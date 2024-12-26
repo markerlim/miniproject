@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Home</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Buying</title>
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="container">
@@ -17,15 +17,72 @@
           <div class="navbar-links">
             <ul>
               <li><a href="/">Home</a></li>
-              <li>
-                <a href="/login" class="login-btn">Login</a>
-              </li>
+              <li><a href="/login" class="login-btn">Login</a></li>
             </ul>
           </div>
         </nav>
       </header>
       <div class="main-content">
-        main content
+        <div class="card-container">
+          <div th:each="item : ${item}" class="card">
+            <img th:src="${item.image}" alt="Item Image" class="card-image" />
+            <div class="card-content">
+              <h2 th:text="${item.title}" class="card-title"></h2>
+              <p th:text="${item.content}" class="card-description"></p>
+              <p th:text="${item.price}" class="card-price"></p>
+              <form th:action="@{/add-to-cart}" method="post">
+                <input type="hidden" th:value="${item.id}" name="id" />
+                <input type="hidden" th:value="${item.title}" name="title" />
+                <input
+                  type="hidden"
+                  th:value="${item.content}"
+                  name="content"
+                />
+                <input
+                  type="hidden"
+                  th:value="${item.category}"
+                  name="category"
+                />
+                <input
+                  type="hidden"
+                  th:value="${item.sellerId}"
+                  name="sellerId"
+                />
+                <input type="hidden" th:value="${item.deadline}" name="date" />
+                <input type="hidden" th:value="${item.image}" name="image" />
+                <input type="hidden" th:value="${item.price}" name="price" />
+
+                <div class="qty-cart">
+                  <div class="form-group">
+                    <label for="qty">Quantity:</label>
+                    <input
+                      type="number"
+                      id="qty"
+                      name="qty"
+                      th:value="1"
+                      min="1"
+                    />
+                  </div>
+                  <button type="submit" class="cart-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="20" height="20" viewBox="0 0 256 256" xml:space="preserve">
+                    <defs>
+                    </defs>
+                    <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)" >
+                        <path d="M 72.975 58.994 H 31.855 c -1.539 0 -2.897 -1.005 -3.347 -2.477 L 15.199 13.006 H 3.5 c -1.933 0 -3.5 -1.567 -3.5 -3.5 s 1.567 -3.5 3.5 -3.5 h 14.289 c 1.539 0 2.897 1.005 3.347 2.476 l 13.309 43.512 h 36.204 l 10.585 -25.191 h -6.021 c -1.933 0 -3.5 -1.567 -3.5 -3.5 s 1.567 -3.5 3.5 -3.5 H 86.5 c 1.172 0 2.267 0.587 2.915 1.563 s 0.766 2.212 0.312 3.293 L 76.201 56.85 C 75.655 58.149 74.384 58.994 72.975 58.994 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(256,256,256); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+                        <circle cx="28.88" cy="74.33" r="6.16" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(256,256,256); fill-rule: nonzero; opacity: 1;" transform="  matrix(1 0 0 1 0 0) "/>
+                        <circle cx="74.59" cy="74.33" r="6.16" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(256,256,256); fill-rule: nonzero; opacity: 1;" transform="  matrix(1 0 0 1 0 0) "/>
+                        <path d="M 62.278 19.546 H 52.237 V 9.506 c 0 -1.933 -1.567 -3.5 -3.5 -3.5 s -3.5 1.567 -3.5 3.5 v 10.04 h -10.04 c -1.933 0 -3.5 1.567 -3.5 3.5 s 1.567 3.5 3.5 3.5 h 10.04 v 10.04 c 0 1.933 1.567 3.5 3.5 3.5 s 3.5 -1.567 3.5 -3.5 v -10.04 h 10.041 c 1.933 0 3.5 -1.567 3.5 -3.5 S 64.211 19.546 62.278 19.546 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(256,256,256); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+                    </g>
+                    </svg>
+                </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div th:if="${message != null and message != ''}" class="message alert alert-success">
+            <p th:text="${message}"></p>
+        </div>
       </div>
     </div>
   </body>

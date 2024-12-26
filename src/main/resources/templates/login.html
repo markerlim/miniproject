@@ -9,24 +9,25 @@
 </head>
 <body>
     <main class="login-page">
-        <h1>Login</h1>
-        <form action="#" method="POST">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+        <h1>Select Role</h1>
+        <div class="error-message">
+            <p th:if="${param.error}" style="color: red;">Invalid role. Please select Buyer or Seller.</p>
+        </div>
         <div class="alternative-signin">
-            <p>Or sign in with:</p>
-            <a th:href="@{/oauth2/authorization/google}" class="google-btn">
-                <img src="https://www.google.com/favicon.ico" alt="Google Logo">
-                Sign in with Google
-            </a>
+            <form action="/set-role" method="post">
+                <input type="hidden" name="role" value="buyer">
+                <button class="google-btn">
+                    <img src="https://www.google.com/favicon.ico" alt="Google Logo">
+                    Sign in as Buyer
+                </button>
+            </form>
+            <form action="/set-role" method="post">
+                <input type="hidden" name="role" value="seller">
+                <button class="google-btn">
+                    <img src="https://www.google.com/favicon.ico" alt="Google Logo">
+                    Sign in as Seller
+                </button>
+            </form>            
         </div>
     </main>
     
