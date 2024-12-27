@@ -25,6 +25,7 @@ import com.project.mini_ssf.model.EntityDetails;
 import com.project.mini_ssf.model.PreOrderListing;
 import com.project.mini_ssf.service.AcraService;
 import com.project.mini_ssf.service.ListingService;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Product;
 import com.stripe.param.ProductCreateParams;
@@ -52,6 +53,8 @@ public class MainRestController {
     @PostMapping(path = "/posting", produces = MediaType.APPLICATION_JSON_VALUE)
     public ModelAndView postNotice(@Valid @ModelAttribute PreOrderListing preOrderListing, HttpSession session,
             BindingResult result) throws StripeException {
+
+        Stripe.apiKey = stripeApi;
         ModelAndView mav = new ModelAndView();
         if (result.hasErrors()) {
             mav.addObject("preOrderListing", preOrderListing);
