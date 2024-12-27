@@ -509,3 +509,77 @@ main.login-page .google-btn img {
   opacity: 0.5;
   pointer-events: none;
 }
+
+
+/*Success Page*/
+.purchased-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.purchased {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  width: 400px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.purchased-content div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.purchased-content div span{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.purchased:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.purchased-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.purchased-content {
+  display: flex;
+  flex-direction: column;
+  gap:0px;
+  width: 400px;
+  height: 100px;
+  justify-content: space-between;
+}
+
+.purchased-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  text-align: start !important;
+  margin: 0 !important;
+}
+
+.purchased-description {
+  font-size: 0.9em;
+  color: #7d7d7d;
+  line-height: 1.4;
+  margin: 0 !important;
+}
+
+.purchased-price,
+.purchased-qty {
+  font-size: 1em;
+  font-weight: 500;
+  color: #2c3e50;
+  margin: 0 !important;
+}

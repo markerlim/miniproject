@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +21,7 @@ import com.project.mini_ssf.model.PreOrderListing;
 import com.project.mini_ssf.service.AcraService;
 import com.project.mini_ssf.service.CartService;
 import com.project.mini_ssf.service.ListingService;
+import com.stripe.exception.StripeException;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -66,6 +66,15 @@ public class MainController {
     public ModelAndView LoginPage() {
         ModelAndView mav = new ModelAndView("login");
         mav.addObject("loginMessage", "Please log in.");
+        return mav;
+    }
+
+    @GetMapping("/success")
+    public ModelAndView paymentSuccess(HttpSession session) throws StripeException{
+        ModelAndView mav = new ModelAndView("success");
+        List<PreOrderListing> list = cartService.getCartItems();
+        mav.addObject("item", list); 
+       
         return mav;
     }
 

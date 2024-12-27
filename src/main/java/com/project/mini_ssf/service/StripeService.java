@@ -24,7 +24,6 @@ public class StripeService {
 
         Stripe.apiKey = stripeApi;
 
-        // Group items by price ID
         Map<String, Long> priceToQuantityMap = new HashMap<>();
 
         for (PreOrderListing item : cartItems) {
@@ -35,23 +34,34 @@ public class StripeService {
             Price stripePrice = Price.retrieve(product.getDefaultPrice());
             String priceId = stripePrice.getId();
 
-            // Aggregate quantities
             priceToQuantityMap.put(priceId, 
                 priceToQuantityMap.getOrDefault(priceId, 0L) + 
                 (item.getQty() != null ? item.getQty().longValue() : 1L));
         }
 
-        // Build payment link params
         PaymentLinkCreateParams.Builder paramsBuilder = PaymentLinkCreateParams.builder();
 
         for (Map.Entry<String, Long> entry : priceToQuantityMap.entrySet()) {
             paramsBuilder.addLineItem(
                 PaymentLinkCreateParams.LineItem.builder()
-                    .setPrice(entry.getKey()) // Price ID
-                    .setQuantity(entry.getValue()) // Aggregated quantity
+                    .setPrice(entry.getKey()) 
+                    .setQuantity(entry.getValue())
                     .build()
             );
         }
+
+        paramsBuilder.setAfterCompletion(
+            PaymentLinkCreateParams.AfterCompletion.builder()
+                .setType(PaymentLinkCreateParams.AfterCompletion.Type.REDIRECT)
+                .setRedirect(
+                    PaymentLinkCreateParams.AfterCompletion.Redirect.builder()
+                    .setUrl("http://localhost:8080/success")
+                    .build()
+                )
+                .build()
+        );
+
+
 
         PaymentLink paymentLink = PaymentLink.create(paramsBuilder.build());
 

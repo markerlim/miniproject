@@ -25,7 +25,9 @@ public class ListingService {
 
     @Autowired
     private ListingRepo listingRepo;
- 
+
+    @Autowired
+    private CartService cartService;
 
     public void postToListingServer(JsonObject jsonObject, String id) {
         listingRepo.saveToRedis(jsonObject, id);
@@ -109,8 +111,64 @@ public class ListingService {
         listingRepo.saveUserListing(userUuid, finalJsonObject);
     }
 
+    public void saveBuyerPurchases(String userUuid) throws StripeException {
+        List<PreOrderListing> list = cartService.getCartItems();
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+        for (PreOrderListing listing : list) {
+
+            JsonObject listingJson = Json.createObjectBuilder()
+                    .add("id", listing.getId())
+                    .add("title", listing.getTitle())
+                    .add("content", listing.getContent())
+                    .add("image", listing.getImage())
+                    .add("category", listing.getCategory())
+                    .add("sellerId", listing.getSellerId())
+                    .add("price", listing.getPrice())
+                    .add("stripeProductId", listing.getStripeProductId())
+                    .add("deadline", listing.getDeadline().toString())
+                    .build();
+
+            jsonObjectBuilder.add(listing.getId(), listingJson);
+        }
+
+        JsonObject finalJsonObject = jsonObjectBuilder.build();
+
+        listingRepo.saveUserPurchases(userUuid, finalJsonObject);
+    }
+
     public List<PreOrderListing> getSellerPostings(String userUuid) {
         String list = listingRepo.getuserPosting(userUuid);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        Reader reader = new StringReader(list);
+        JsonReader jsonReader = Json.createReader(reader);
+        JsonObject jsonMsgObj = jsonReader.readObject();
+
+        List<PreOrderListing> listings = new ArrayList<>();
+
+        for (String listingId : jsonMsgObj.keySet()) {
+            JsonObject listingJson = jsonMsgObj.getJsonObject(listingId);
+
+            PreOrderListing preOrderListing = new PreOrderListing();
+            preOrderListing.setId(listingJson.getString("id"));
+            preOrderListing.setTitle(listingJson.getString("title"));
+            preOrderListing.setContent(listingJson.getString("content"));
+            preOrderListing.setImage(listingJson.getString("image"));
+            preOrderListing.setCategory(listingJson.getString("category"));
+            preOrderListing.setSellerId(listingJson.getString("sellerId"));
+            preOrderListing.setStripeProductId(listingJson.getString("stripeProductId"));
+            preOrderListing.setPrice(listingJson.getJsonNumber("price").longValue());
+            preOrderListing.setDeadline(LocalDate.parse(jsonMsgObj.getString("deadline", "1970-01-01")));
+
+            listings.add(preOrderListing);
+        }
+        return listings;
+    }
+
+    public List<PreOrderListing> getBuyerPurchases(String userUuid) {
+        String list = listingRepo.getuserPurchases(userUuid);
         if (list == null || list.isEmpty()) {
             return null;
         }

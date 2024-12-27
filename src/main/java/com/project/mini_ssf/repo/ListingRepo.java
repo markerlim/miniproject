@@ -38,8 +38,18 @@ public class ListingRepo {
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put(userId, "listing", list.toString());
     }
+
+    public void saveUserPurchases(String userId,JsonObject list){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.put(userId, "purchases", list.toString());
+    }
     public String getuserPosting(String userId){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get(userId,"listing");
+    }
+
+    public String getuserPurchases(String userId){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get(userId,"purchases");
     }
 }

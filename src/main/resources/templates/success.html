@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Buying</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <nav class="navbar">
+          <div class="brand-title">Aegis</div>
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+          <label for="menu-toggle" class="hamburger">☰</label>
+          <div class="navbar-links">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/buyer/cart">Cart</a></li>
+              <li><a href="/logout" id="logoutForm">Logout</a></li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <div class="main-content">
+        <div class="purchased-container">
+          <div th:each="item : ${item}" class="purchased">
+            <img
+              th:src="${item.image}"
+              alt="Item Image"
+              class="purchased-image"
+            />
+            <div class="purchased-content">
+              <span>
+                <h2 th:text="${item.title}" class="purchased-title"></h2>
+                <p th:text="${item.content}" class="purchased-description"></p>
+              </span>
+              <div>
+                <span>
+                  S$
+                  <p th:text="${item.price}" class="purchased-price"></p>
+                </span>
+                <span>
+                  Qty:
+                  <p th:text="${item.qty}" class="purchased-qty"></p>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
