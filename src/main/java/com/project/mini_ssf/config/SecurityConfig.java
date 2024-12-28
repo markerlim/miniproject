@@ -27,7 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/set-role", "/styles.css", "/login").permitAll()
+                .requestMatchers("/", "/set-role", "/styles.css", "/login","/entities").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth -> oauth
@@ -52,7 +52,6 @@ public class SecurityConfig {
     
             HttpSession session = request.getSession();
 
-            // Get role from session
             String role = (String) request.getSession().getAttribute("role");
             System.out.println(role);
 
@@ -61,10 +60,8 @@ public class SecurityConfig {
                 return;
             }
     
-            // Store the user's details in Redis, with the role
             redisUserDetailsService.storeOAuth2UserDetails(session, oauth2User, role.toUpperCase());
             
-            // Redirect the user based on their role
             response.sendRedirect("/" + role + "/home");
         };
     }

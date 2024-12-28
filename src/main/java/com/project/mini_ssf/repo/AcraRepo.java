@@ -31,6 +31,11 @@ public class AcraRepo {
         hashOps.put(userId, "acra", list.toString());
     }
 
+    public void addToSellerDB(String userId, JsonObject list){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.put("acra",userId,list.toString());
+    }
+
     public void saveAcraToRegisteredUEN(String uen, JsonObject list){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put("registeredAcraDB", uen , list.toString());

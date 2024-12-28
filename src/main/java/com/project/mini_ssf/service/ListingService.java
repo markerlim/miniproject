@@ -2,20 +2,28 @@ package com.project.mini_ssf.service;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.project.mini_ssf.model.EntityDetails;
+import com.project.mini_ssf.model.Orders;
 import com.project.mini_ssf.model.PreOrderListing;
+import com.project.mini_ssf.model.SellerOrderTracker;
 import com.project.mini_ssf.repo.ListingRepo;
 import com.stripe.exception.StripeException;
 
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonReader;
@@ -51,7 +59,12 @@ public class ListingService {
             listing.setSellerId(jsonMsgObj.getString("sellerId"));
             listing.setStripeProductId(jsonMsgObj.getString("stripeProductId"));
             listing.setPrice(jsonMsgObj.getJsonNumber("price").longValue());
-            listing.setDeadline(LocalDate.parse(jsonMsgObj.getString("deadline", "1970-01-01")));
+            listing.setDeadline(
+                    Instant.ofEpochMilli(jsonMsgObj.getJsonNumber("deadline").longValue())
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate());
+            listing.setBuyerConfirmSalesComplete(jsonMsgObj.getBoolean("buyerConfirmSalesComplete"));
+            listing.setSellerConfirmSalesComplete(jsonMsgObj.getBoolean("sellerConfirmSalesComplete"));
             System.out.println(listing.toString());
             preOrderListings.add(listing);
         }
@@ -75,8 +88,12 @@ public class ListingService {
         pol.setSellerId(jsonMsgObj.getString("sellerId"));
         pol.setStripeProductId(jsonMsgObj.getString("stripeProductId"));
         pol.setPrice(jsonMsgObj.getJsonNumber("price").longValue());
-        pol.setDeadline(LocalDate.parse(jsonMsgObj.getString("deadline", "1970-01-01")));
-
+        pol.setDeadline(
+                Instant.ofEpochMilli(jsonMsgObj.getJsonNumber("deadline").longValue())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate());
+        pol.setBuyerConfirmSalesComplete(jsonMsgObj.getBoolean("buyerConfirmSalesComplete"));
+        pol.setSellerConfirmSalesComplete(jsonMsgObj.getBoolean("sellerConfirmSalesComplete"));
         return pol;
     }
 
@@ -91,6 +108,8 @@ public class ListingService {
 
         for (PreOrderListing listing : filteredListings) {
 
+            Instant instant = listing.getDeadline().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
             JsonObject listingJson = Json.createObjectBuilder()
                     .add("id", listing.getId())
                     .add("title", listing.getTitle())
@@ -100,7 +119,9 @@ public class ListingService {
                     .add("sellerId", listing.getSellerId())
                     .add("price", listing.getPrice())
                     .add("stripeProductId", listing.getStripeProductId())
-                    .add("deadline", listing.getDeadline().toString())
+                    .add("deadline", instant.toEpochMilli())
+                    .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                    .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete())
                     .build();
 
             jsonObjectBuilder.add(listing.getId(), listingJson);
@@ -111,28 +132,103 @@ public class ListingService {
         listingRepo.saveUserListing(userUuid, finalJsonObject);
     }
 
-    public void saveBuyerPurchases(String userUuid) throws StripeException {
-        List<PreOrderListing> list = cartService.getCartItems();
-        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+    public void updateSellerOrder(String userUuid, PreOrderListing listing, int quantity, String orderId,
+            Boolean sellerConfirmSalesComplete, Boolean buyerConfirmSalesComplete) {
+        List<SellerOrderTracker> listOfOrders = getSellerOrderTracker(listing.getSellerId());
 
-        for (PreOrderListing listing : list) {
-
-            JsonObject listingJson = Json.createObjectBuilder()
-                    .add("id", listing.getId())
-                    .add("title", listing.getTitle())
-                    .add("content", listing.getContent())
-                    .add("image", listing.getImage())
-                    .add("category", listing.getCategory())
-                    .add("sellerId", listing.getSellerId())
-                    .add("price", listing.getPrice())
-                    .add("stripeProductId", listing.getStripeProductId())
-                    .add("deadline", listing.getDeadline().toString())
-                    .build();
-
-            jsonObjectBuilder.add(listing.getId(), listingJson);
+        if (listOfOrders == null) {
+            listOfOrders = new ArrayList<>();
         }
 
-        JsonObject finalJsonObject = jsonObjectBuilder.build();
+        SellerOrderTracker purchaseTracking = new SellerOrderTracker();
+        purchaseTracking.setBuyerId(userUuid);
+        purchaseTracking.setListingId(listing.getId());
+        purchaseTracking.setQuantity(quantity);
+        purchaseTracking.setPurchaseDate(LocalDate.now());
+        purchaseTracking.setBuyerEmail(listingRepo.getUserEmail(userUuid));
+        purchaseTracking.setBuyerName(listingRepo.getUserName(userUuid));
+        purchaseTracking.setOrderId(orderId);
+        purchaseTracking.setSellerConfirmSalesComplete(sellerConfirmSalesComplete);
+        purchaseTracking.setBuyerConfirmSalesComplete(buyerConfirmSalesComplete);
+        listOfOrders.add(purchaseTracking);
+
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        for (SellerOrderTracker order : listOfOrders) {
+            JsonObject jsonObject = Json.createObjectBuilder()
+                    .add("buyerId", order.getBuyerId())
+                    .add("listingId", order.getListingId())
+                    .add("quantity", order.getQuantity())
+                    .add("purchaseDate", order.getPurchaseDate().toString())
+                    .add("buyerEmail", order.getBuyerEmail())
+                    .add("buyerName", order.getBuyerName())
+                    .add("orderId", order.getOrderId())
+                    .add("buyerConfirmSalesComplete", order.getBuyerConfirmSalesComplete())
+                    .add("sellerConfirmSalesComplete", order.getSellerConfirmSalesComplete())
+                    .build();
+            jsonObjectBuilder.add(order.getOrderId(), jsonObject);
+        }
+
+        listingRepo.saveSellerSales(listing.getSellerId(), jsonObjectBuilder.build());
+    }
+
+    public void saveBuyerPurchases(String userUuid) {
+        List<PreOrderListing> list = cartService.getCartItems();
+
+        List<Orders> existingOrders = getBuyerPurchases(userUuid);
+
+        Orders newOrder = new Orders();
+        newOrder.setOrderId(UUID.randomUUID().toString());
+        newOrder.setListing(list);
+        newOrder.setOrderDate(LocalDate.now());
+
+        if (existingOrders == null) {
+            existingOrders = new ArrayList<>();
+        }
+        existingOrders.add(newOrder);
+
+        JsonArrayBuilder ordersArrayBuilder = Json.createArrayBuilder();
+
+        for (Orders order : existingOrders) {
+
+            Instant instant2 = order.getOrderDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+            JsonObjectBuilder orderJsonBuilder = Json.createObjectBuilder();
+            orderJsonBuilder.add("orderId", order.getOrderId());
+            orderJsonBuilder.add("orderDate", instant2.toEpochMilli());
+            JsonArrayBuilder listingsArrayBuilder = Json.createArrayBuilder();
+            for (PreOrderListing listing : order.getListing()) {
+
+                Instant instant = listing.getDeadline().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+                JsonObject listingJson = Json.createObjectBuilder()
+                        .add("id", listing.getId())
+                        .add("title", listing.getTitle())
+                        .add("content", listing.getContent())
+                        .add("image", listing.getImage())
+                        .add("category", listing.getCategory())
+                        .add("sellerId", listing.getSellerId())
+                        .add("price", listing.getPrice())
+                        .add("qty", listing.getQty())
+                        .add("stripeProductId", listing.getStripeProductId())
+                        .add("deadline", instant.toEpochMilli())
+                        .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                        .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete())
+                        .build();
+
+                listingsArrayBuilder.add(listingJson);
+                updateSellerOrder(userUuid, listing, listing.getQty(), order.getOrderId(),
+                        listing.getSellerConfirmSalesComplete(), listing.getBuyerConfirmSalesComplete());
+            }
+
+            orderJsonBuilder.add("listings", listingsArrayBuilder);
+            ordersArrayBuilder.add(orderJsonBuilder.build());
+
+        }
+
+        JsonObjectBuilder finalJsonObjectBuilder = Json.createObjectBuilder();
+        finalJsonObjectBuilder.add("orders", ordersArrayBuilder);
+
+        JsonObject finalJsonObject = finalJsonObjectBuilder.build();
 
         listingRepo.saveUserPurchases(userUuid, finalJsonObject);
     }
@@ -160,41 +256,199 @@ public class ListingService {
             preOrderListing.setSellerId(listingJson.getString("sellerId"));
             preOrderListing.setStripeProductId(listingJson.getString("stripeProductId"));
             preOrderListing.setPrice(listingJson.getJsonNumber("price").longValue());
-            preOrderListing.setDeadline(LocalDate.parse(jsonMsgObj.getString("deadline", "1970-01-01")));
-
+            preOrderListing.setDeadline(
+                    Instant.ofEpochMilli(listingJson.getJsonNumber("deadline").longValue())
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate());
+            preOrderListing.setBuyerConfirmSalesComplete(listingJson.getBoolean("buyerConfirmSalesComplete"));
+            preOrderListing.setSellerConfirmSalesComplete(listingJson.getBoolean("sellerConfirmSalesComplete"));
             listings.add(preOrderListing);
         }
         return listings;
     }
 
-    public List<PreOrderListing> getBuyerPurchases(String userUuid) {
+    public List<Orders> getBuyerPurchases(String userUuid) {
         String list = listingRepo.getuserPurchases(userUuid);
+
         if (list == null || list.isEmpty()) {
-            return null;
+            return new ArrayList<>();
         }
+
         Reader reader = new StringReader(list);
         JsonReader jsonReader = Json.createReader(reader);
         JsonObject jsonMsgObj = jsonReader.readObject();
 
-        List<PreOrderListing> listings = new ArrayList<>();
+        JsonArray ordersArray = jsonMsgObj.getJsonArray("orders");
 
-        for (String listingId : jsonMsgObj.keySet()) {
-            JsonObject listingJson = jsonMsgObj.getJsonObject(listingId);
-
-            PreOrderListing preOrderListing = new PreOrderListing();
-            preOrderListing.setId(listingJson.getString("id"));
-            preOrderListing.setTitle(listingJson.getString("title"));
-            preOrderListing.setContent(listingJson.getString("content"));
-            preOrderListing.setImage(listingJson.getString("image"));
-            preOrderListing.setCategory(listingJson.getString("category"));
-            preOrderListing.setSellerId(listingJson.getString("sellerId"));
-            preOrderListing.setStripeProductId(listingJson.getString("stripeProductId"));
-            preOrderListing.setPrice(listingJson.getJsonNumber("price").longValue());
-            preOrderListing.setDeadline(LocalDate.parse(jsonMsgObj.getString("deadline", "1970-01-01")));
-
-            listings.add(preOrderListing);
+        if (ordersArray == null || ordersArray.isEmpty()) {
+            return new ArrayList<>();
         }
-        return listings;
+
+        List<Orders> ordersList = new ArrayList<>();
+
+        for (JsonObject orderJson : ordersArray.getValuesAs(JsonObject.class)) {
+            Orders orders = new Orders();
+            orders.setOrderId(orderJson.getString("orderId"));
+            orders.setOrderDate(
+                    Instant.ofEpochMilli(orderJson.getJsonNumber("orderDate").longValue())
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate());
+            List<PreOrderListing> listings = new ArrayList<>();
+
+            JsonArray listingsArray = orderJson.getJsonArray("listings");
+
+            for (JsonObject listingJson : listingsArray.getValuesAs(JsonObject.class)) {
+                PreOrderListing preOrderListing = new PreOrderListing();
+                preOrderListing.setId(listingJson.getString("id"));
+                preOrderListing.setTitle(listingJson.getString("title"));
+                preOrderListing.setContent(listingJson.getString("content"));
+                preOrderListing.setImage(listingJson.getString("image"));
+                preOrderListing.setCategory(listingJson.getString("category"));
+                preOrderListing.setSellerId(listingJson.getString("sellerId"));
+                preOrderListing.setQty(listingJson.getJsonNumber("qty").intValue());
+                preOrderListing.setStripeProductId(listingJson.getString("stripeProductId"));
+                preOrderListing.setPrice(listingJson.getJsonNumber("price").longValue());
+                preOrderListing.setDeadline(
+                        Instant.ofEpochMilli(listingJson.getJsonNumber("deadline").longValue())
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate());
+                preOrderListing.setBuyerConfirmSalesComplete(listingJson.getBoolean("buyerConfirmSalesComplete"));
+                preOrderListing.setSellerConfirmSalesComplete(listingJson.getBoolean("sellerConfirmSalesComplete"));
+                listings.add(preOrderListing);
+            }
+
+            orders.setListing(listings);
+            ordersList.add(orders);
+        }
+
+        return ordersList;
+    }
+
+    public List<SellerOrderTracker> getSellerOrderTracker(String userUuid) {
+        String sellerOrdersJson = listingRepo.getSellerOrders(userUuid);
+
+        List<SellerOrderTracker> sellerOrderTrackers = new ArrayList<>();
+
+        if (sellerOrdersJson != null && !sellerOrdersJson.isEmpty()) {
+            JsonReader jsonReader = Json.createReader(new StringReader(sellerOrdersJson));
+            JsonObject jsonObject = jsonReader.readObject();
+
+            for (String key : jsonObject.keySet()) {
+                JsonObject orderJson = jsonObject.getJsonObject(key);
+
+                SellerOrderTracker orderTracker = new SellerOrderTracker();
+                orderTracker.setBuyerId(orderJson.getString("buyerId"));
+                orderTracker.setListingId(orderJson.getString("listingId"));
+                orderTracker.setQuantity(orderJson.getInt("quantity"));
+                orderTracker.setPurchaseDate(LocalDate.parse(orderJson.getString("purchaseDate")));
+                orderTracker.setBuyerEmail(orderJson.getString("buyerEmail"));
+                orderTracker.setBuyerName(orderJson.getString("buyerName"));
+                orderTracker.setOrderId(orderJson.getString("orderId"));
+                orderTracker.setSellerConfirmSalesComplete(orderJson.getBoolean("sellerConfirmSalesComplete"));
+                orderTracker.setBuyerConfirmSalesComplete(orderJson.getBoolean("buyerConfirmSalesComplete"));
+
+                PreOrderListing listing = getOneListing(orderTracker.getListingId());
+
+                List<PreOrderListing> listings = new ArrayList<>();
+                listings.add(listing);
+                orderTracker.setListing(listings);
+
+                sellerOrderTrackers.add(orderTracker);
+            }
+        }
+
+        return sellerOrderTrackers;
+    }
+
+    public List<EntityDetails> getAllSellers() {
+        Map<String, String> hashMap = listingRepo.getAllSellersFromRedis();
+        List<EntityDetails> listDetails = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : hashMap.entrySet()) {
+            Reader reader = new StringReader(entry.getValue());
+            JsonReader jsonReader = Json.createReader(reader);
+            JsonObject jsonMsgObj = jsonReader.readObject();
+
+            EntityDetails ent = new EntityDetails();
+            ent.setUuid(entry.getKey());
+            ent.setUuid(entry.getKey());
+            ent.setUen(jsonMsgObj.getString("uen", null)); // Use default null for missing keys
+            ent.setIssuanceAgencyId(jsonMsgObj.getString("issuanceAgencyId", null));
+            ent.setUenStatus(jsonMsgObj.getString("uenStatus", null));
+            ent.setEntityName(jsonMsgObj.getString("entityName", null));
+            ent.setEntityType(jsonMsgObj.getString("entityType", null));
+            ent.setUenIssueDate(jsonMsgObj.containsKey("uenIssueDate")
+                    ? LocalDate.parse(jsonMsgObj.getString("uenIssueDate"))
+                    : null);
+            ent.setRegStreetName(jsonMsgObj.getString("regStreetName", null));
+            ent.setRegPostalCode(jsonMsgObj.getString("regPostalCode", null));
+
+            listDetails.add(ent);
+        }
+
+        return listDetails;
+    }
+
+    public void setSellerConfirmSalesComplete(String userId, String orderId, String listingId) {
+        List<Orders> buyerlist = getBuyerPurchases(userId);
+        for (Orders order : buyerlist) {
+            if (order.getOrderId().equals(orderId)) {
+                List<PreOrderListing> pol = order.getListing();
+                for (PreOrderListing preOrderListing : pol) {
+                    if (preOrderListing.getId().equals(listingId)) {
+                        preOrderListing.setSellerConfirmSalesComplete(true);
+                    }
+                    continue;
+                }
+            }
+            continue;
+        }
+
+        JsonArrayBuilder ordersArrayBuilder = Json.createArrayBuilder();
+
+        for (Orders order : buyerlist) {
+
+            Instant instant2 = order.getOrderDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+            JsonObjectBuilder orderJsonBuilder = Json.createObjectBuilder();
+            orderJsonBuilder.add("orderId", order.getOrderId());
+            orderJsonBuilder.add("orderDate", instant2.toEpochMilli());
+            JsonArrayBuilder listingsArrayBuilder = Json.createArrayBuilder();
+            for (PreOrderListing listing : order.getListing()) {
+
+                Instant instant = listing.getDeadline().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+                JsonObject listingJson = Json.createObjectBuilder()
+                        .add("id", listing.getId())
+                        .add("title", listing.getTitle())
+                        .add("content", listing.getContent())
+                        .add("image", listing.getImage())
+                        .add("category", listing.getCategory())
+                        .add("sellerId", listing.getSellerId())
+                        .add("price", listing.getPrice())
+                        .add("qty", listing.getQty())
+                        .add("stripeProductId", listing.getStripeProductId())
+                        .add("deadline", instant.toEpochMilli())
+                        .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                        .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete())
+                        .build();
+
+                listingsArrayBuilder.add(listingJson);
+                updateSellerOrder(userId, listing, listing.getQty(), order.getOrderId(),
+                        listing.getSellerConfirmSalesComplete(), listing.getBuyerConfirmSalesComplete());
+            }
+
+            orderJsonBuilder.add("listings", listingsArrayBuilder);
+            ordersArrayBuilder.add(orderJsonBuilder.build());
+
+        }
+
+        JsonObjectBuilder finalJsonObjectBuilder = Json.createObjectBuilder();
+        finalJsonObjectBuilder.add("orders", ordersArrayBuilder);
+
+        JsonObject finalJsonObject = finalJsonObjectBuilder.build();
+
+        listingRepo.saveUserPurchases(userId, finalJsonObject);
 
     }
 }

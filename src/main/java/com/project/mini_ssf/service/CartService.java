@@ -3,8 +3,6 @@ import org.springframework.stereotype.Service;
 
 import com.project.mini_ssf.model.PreOrderListing;
 
-import jakarta.servlet.http.HttpSession;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -19,6 +17,14 @@ public class CartService {
         }
         cartItems.add(item);
         return true;
+    }
+
+    public void removeItemFromCart(String id) {
+        for(int i = 0; i < cartItems.size(); i++){
+            if(cartItems.get(i).getId().equals(id)){
+                cartItems.remove(i);
+            }
+        }
     }
 
     public List<PreOrderListing> getCartItems() {

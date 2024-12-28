@@ -69,7 +69,7 @@ public class RedisUserDetailsService implements UserDetailsService {
             redisTemplate.opsForValue().set(userKey, userUuid);
         }
     
-        if(role.equals("SELLER")){
+        if(role.equals("SELLER") || role.equals("BUYER")){
             session.setAttribute("userId", "user:" + userUuid);
         }
         String email = oauth2User.getAttribute("email");

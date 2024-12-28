@@ -39,7 +39,6 @@ public class AcraService {
             String filters = URLEncoder.encode("{\"uen\":{\"type\":\"ILIKE\",\"value\":\"" + uen + "\"}}",
                     StandardCharsets.UTF_8);
             String url = dataUrl + dataset + "&filters=" + filters + "&limit=10";
-
             RequestEntity<Void> request = RequestEntity
                     .get(URI.create(url))
                     .accept(MediaType.APPLICATION_JSON)
@@ -94,6 +93,7 @@ public class AcraService {
                 .build();
                 
         acraRepo.saveAcraToSeller(userUuid,jsonObject);
+        acraRepo.addToSellerDB(userUuid, jsonObject);
     }
 
     public Boolean checkIfUserAddedUEN(String userId) {

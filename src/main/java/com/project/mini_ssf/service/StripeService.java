@@ -20,6 +20,9 @@ public class StripeService {
     @Value("${stripe.api.key}")
     private String stripeApi;
 
+    @Value("${success.url}")
+    private String successUrl;
+
     public String createPaymentLink(List<PreOrderListing> cartItems) throws Exception {
 
         Stripe.apiKey = stripeApi;
@@ -55,7 +58,7 @@ public class StripeService {
                 .setType(PaymentLinkCreateParams.AfterCompletion.Type.REDIRECT)
                 .setRedirect(
                     PaymentLinkCreateParams.AfterCompletion.Redirect.builder()
-                    .setUrl("http://localhost:8080/success")
+                    .setUrl(successUrl)
                     .build()
                 )
                 .build()

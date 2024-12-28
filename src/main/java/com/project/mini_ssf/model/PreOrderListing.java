@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Future;
 
@@ -21,8 +22,10 @@ public class PreOrderListing {
     @Size(min = 5, max = 500, message = "Content should be between 5 and 500 characters")
     private String content;
 
+    @NotBlank(message = "Image URL is required")
+    @Pattern(regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$", message = "Invalid URL format")
     private String image;
-
+    
     @NotBlank(message = "Category is required")
     private String category;
 
@@ -37,6 +40,10 @@ public class PreOrderListing {
     private LocalDate deadline;
 
     private Integer qty;
+
+    private Boolean sellerConfirmSalesComplete;
+
+    private Boolean buyerConfirmSalesComplete;
 
     public PreOrderListing() {}
 
@@ -131,6 +138,22 @@ public class PreOrderListing {
 
     public void setStripeProductId(String stripeProductId) {
         this.stripeProductId = stripeProductId;
+    }
+
+    public Boolean getSellerConfirmSalesComplete() {
+        return sellerConfirmSalesComplete;
+    }
+
+    public void setSellerConfirmSalesComplete(Boolean sellerConfirmSalesComplete) {
+        this.sellerConfirmSalesComplete = sellerConfirmSalesComplete;
+    }
+
+    public Boolean getBuyerConfirmSalesComplete() {
+        return buyerConfirmSalesComplete;
+    }
+
+    public void setBuyerConfirmSalesComplete(Boolean buyerConfirmSalesComplete) {
+        this.buyerConfirmSalesComplete = buyerConfirmSalesComplete;
     }
 
 

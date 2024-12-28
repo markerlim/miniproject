@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Buying</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <nav class="navbar">
+          <div class="brand-title">Aegis</div>
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+          <label for="menu-toggle" class="hamburger">☰</label>
+          <div class="navbar-links">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/seller/sales">Sales</a></li>
+              <li><a href="/seller/newposting">new +</a></li>
+              <li><a href="/logout" id="logoutForm">Logout</a></li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <div class="main-content">
+        <div class="sold-container">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th>Order Id</th>
+                <th>Buyer Name</th>
+                <th>Buyer Email</th>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="sellerOrder : ${item}">
+                <td th:text="${sellerOrder.orderId}"></td>
+                <td th:text="${sellerOrder.buyerName}"></td>
+                <td th:text="${sellerOrder.buyerEmail}"></td>
+                <div th:each="listing : ${sellerOrder.listing}">
+                  <td>
+                    <img
+                      th:src="${listing.image}"
+                      alt="Item Image"
+                      class="sold-image"
+                    />
+                    <h2 th:text="${listing.title}"></h2>
+                    <p th:text="${listing.content}"></p>
+                  </td>
+                  <td th:text="${listing.price}"></td>
+                  <td th:text="${sellerOrder.quantity}"></td>
+                  <td>
+                    <div th:if="${sellerOrder.sellerConfirmSalesComplete}">
+                      <p>Sales confirmed by seller</p>
+                    </div>
+                    <div th:if="${!sellerOrder.sellerConfirmSalesComplete}">
+                      <form th:action="@{/confirm-sale}" method="post">
+                        <input
+                          type="hidden"
+                          th:name="listingId"
+                          th:value="${listing.id}"
+                        />
+                        <input
+                          type="hidden"
+                          th:name="buyerId"
+                          th:value="${sellerOrder.buyerId}"
+                        />
+                        <input
+                          type="hidden"
+                          th:name="orderId"
+                          th:value="${sellerOrder.orderId}"
+                        />
+                        <button type="submit">Confirm Sale</button>
+                      </form>
+                    </div>
+                  </td>
+                </div>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

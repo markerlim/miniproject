@@ -25,19 +25,8 @@
           </div>
         </nav>
       </header>
-      <div class="filter-container">
-        <div class="filter-pills">
-          <a href="/buyer/home" class="filter-pill">All</a>
-          <a href="/buyer/home/electronics" class="filter-pill">Electronics</a>
-          <a href="/buyer/home/fashion-apparel" class="filter-pill">Fashion & Apparel</a>
-          <a href="/buyer/home/toys-collectibles" class="filter-pill">Toys & Collectibles</a>
-          <a href="/buyer/home/books-comics" class="filter-pill">Books & Comics</a>
-          <a href="/buyer/home/video-games" class="filter-pill">Video Games</a>
-          <a href="/buyer/home/home-kitchen" class="filter-pill">Home & Kitchen</a>
-          <a href="/buyer/home/music-media" class="filter-pill">Music & Media</a>
-        </div>        
       <div class="main-content">
-        <div class="card-container" id="belowFilterPill">
+        <div class="card-container">
           <div th:each="item : ${item}" class="card">
             <img th:src="${item.image}" alt="Item Image" class="card-image" />
             <div class="card-content">

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class EntityDetails {
 
+    private String uuid;
     private String uen;
     private String issuanceAgencyId;
     private String uenStatus;
@@ -79,6 +80,14 @@ public class EntityDetails {
 
     public void setRegPostalCode(String regPostalCode) {
         this.regPostalCode = regPostalCode;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
     
 }

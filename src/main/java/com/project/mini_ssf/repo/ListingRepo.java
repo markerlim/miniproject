@@ -30,6 +30,11 @@ public class ListingRepo {
         return hashOps.entries("listing");
     }
 
+    public Map<String,String> getAllSellersFromRedis(){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.entries("acra");
+    }
+
     public String getOneListingFromRedis(String id){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get("listing", id);
@@ -38,18 +43,34 @@ public class ListingRepo {
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put(userId, "listing", list.toString());
     }
-
     public void saveUserPurchases(String userId,JsonObject list){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put(userId, "purchases", list.toString());
+    }
+    public void saveSellerSales(String userId, JsonObject list){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.put(userId, "sellerOrders", list.toString());
     }
     public String getuserPosting(String userId){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get(userId,"listing");
     }
-
+    public String getSellerOrders(String userId){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get(userId,"sellerOrders");
+    }
     public String getuserPurchases(String userId){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get(userId,"purchases");
+    }
+
+    public String getUserEmail(String userId){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get(userId,"email");
+    }
+
+    public String getUserName(String userId){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get(userId,"name");
     }
 }

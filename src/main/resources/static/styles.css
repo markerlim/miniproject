@@ -509,8 +509,96 @@ main.login-page .google-btn img {
   opacity: 0.5;
   pointer-events: none;
 }
+/*Cart Page*/
+.cart-container {
+  display: flex;
+  flex-direction: column;
+  height:500px;
+  gap: 16px;
+}
 
+.cart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 15px;
+  width: 400px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
+@media (max-width:780px) {
+  .cart-container{
+    width: calc(100vw - 90px);
+  }
+  .cart{
+    width: calc(100vw - 90px);
+  }
+}
+.cart-content div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.cart-content div span{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.cart:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-content {
+  display: flex;
+  flex-direction: column;
+  gap:0px;
+  width: 400px;
+  height: 100px;
+  justify-content: space-between;
+}
+
+.cart-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  text-align: start !important;
+  margin: 0 !important;
+}
+
+.cart-description {
+  font-size: 0.9em;
+  color: #7d7d7d;
+  line-height: 1.4;
+  margin: 0 !important;
+}
+
+.cart-price,
+.cart-qty {
+  font-size: 1em;
+  font-weight: 500;
+  color: #2c3e50;
+  margin: 0 !important;
+}
+
+.cart-func{
+  height:40px;
+  width: 100%;
+  display: flex;
+  gap:10px;
+  justify-content: flex-end;
+}
 /*Success Page*/
 .purchased-container {
   display: flex;
@@ -582,4 +670,148 @@ main.login-page .google-btn img {
   font-weight: 500;
   color: #2c3e50;
   margin: 0 !important;
+}
+
+
+/* General error styling */
+.error {
+  color: #d9534f; /* Red color for errors */
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Style for the error messages only */
+.error span {
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid #d9534f;
+  background-color: #f8d7da;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+/* Optional: Highlight form-group when there are errors */
+.form-group.error {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.form-group.error input,
+.form-group.error textarea,
+.form-group.error select {
+  /* Remove red styling from the input fields */
+  background-color: #fff;
+}
+
+/* If you want to highlight the label */
+.form-group.error label {
+  color: #d9534f; /* Red color for label */
+}
+
+
+.filter-container {
+  overflow-x: auto; /* Enable horizontal scrolling */
+  white-space: nowrap; /* Prevent line breaks */
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  background-color: #f9f9f9; /* Optional: Add a background for better visibility */
+  border-bottom: 1px solid #ddd; /* Optional: Add a border */
+}
+
+.filter-pills {
+  display: inline-flex; /* Display pills inline */
+  gap: 0.5rem; /* Add spacing between pills */
+}
+
+.filter-pill {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 20px; /* Round edges for pill shape */
+  background-color: #fff;
+  color: #333;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-pill:hover {
+  background-color: #007bff; /* Change to primary color on hover */
+  color: #fff;
+}
+
+.filter-pill:focus,
+.filter-pill:active {
+  background-color: #0056b3; /* Darker shade for active */
+  color: #fff;
+  outline: none; /* Remove default focus outline */
+}
+
+/*Seller Management*/
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+}
+
+.sales-table th, .sales-table td {
+  padding: 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.sales-table th {
+  background-color: #333;
+  color: white;
+}
+
+.sales-table td img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.sales-table td form {
+  margin: 0;
+}
+
+.sales-table td form button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.sales-table td form button:hover {
+  background-color: #45a049;
+}
+
+.sold-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.sold-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.sold-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.sold-description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.sold-price, .sold-qty {
+  font-weight: bold;
 }

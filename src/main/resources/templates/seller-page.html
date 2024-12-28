@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Entity Details</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <nav class="navbar">
+          <div class="brand-title">Entity Details</div>
+          <div class="navbar-links">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/buyer/purchases">Orders</a></li>
+                <li><a href="/entities">Sellers</a></li>
+                <li><a href="/buyer/cart">Cart</a></li>
+                <li><a href="/logout" id="logoutForm">Logout</a></li>
+              </ul>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <h1>Entity Details</h1>
+        <div class="entity-container">
+          <div th:each="entity : ${entities}" class="entity-card">
+            <h2 th:text="${entity.entityName}"></h2>
+            <p><strong>UEN:</strong> <span th:text="${entity.uen}"></span></p>
+            <p><strong>Issuance Agency ID:</strong> <span th:text="${entity.issuanceAgencyId}"></span></p>
+            <p><strong>Status:</strong> <span th:text="${entity.uenStatus}"></span></p>
+            <p><strong>Type:</strong> <span th:text="${entity.entityType}"></span></p>
+            <p><strong>Issue Date:</strong> <span th:text="${entity.uenIssueDate}"></span></p>
+            <p><strong>Street Name:</strong> <span th:text="${entity.regStreetName}"></span></p>
+            <p><strong>Postal Code:</strong> <span th:text="${entity.regPostalCode}"></span></p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

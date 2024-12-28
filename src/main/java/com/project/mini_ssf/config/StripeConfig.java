@@ -4,7 +4,7 @@ import com.stripe.Stripe;
 
 public class StripeConfig {
     public static void init() {
-        Stripe.apiKey = System.getenv("STRIPE_API_KEY"); // Store the key in an environment variable
+        Stripe.apiKey = System.getenv("STRIPE_API_KEY");
     }
 }
 
