@@ -45,7 +45,7 @@
             <div class="card-content">
               <h2 th:text="${item.title}" class="card-title"></h2>
               <p th:text="${item.content}" class="card-description"></p>
-              <p th:text="${item.price}" class="card-price"></p>
+              <p th:text="'$' + ${item.price}" class="card-price"></p>
               <form th:action="@{/add-to-cart}" method="post">
                 <input type="hidden" th:value="${item.id}" name="id" />
                 <input type="hidden" th:value="${item.title}" name="title" />

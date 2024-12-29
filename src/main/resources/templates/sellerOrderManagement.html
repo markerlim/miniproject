@@ -83,7 +83,7 @@
                     ></span>
                   </td>
                   <td th:text="${listing.id}"></td>
-                  <td th:text="${listing.price}"></td>
+                  <td th:text="'$' + ${listing.price}"></td>
                   <td th:text="${sellerOrder.quantity}"></td>
                   <td>
                     <div th:if="${sellerOrder.sellerConfirmSalesComplete}">

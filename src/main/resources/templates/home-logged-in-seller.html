@@ -34,7 +34,7 @@
             <div class="card-content">
               <h2 th:text="${item.title}" class="card-title"></h2>
               <p th:text="${item.content}" class="card-description"></p>
-              <p th:text="${item.price}" class="card-price"></p>
+              <p th:text="'$' + ${item.price}" class="card-price"></p>
               <a th:href="@{'/seller/home/'+${item.id}}">
                 <button class="card-btn">Check Item</button>
               </a>
