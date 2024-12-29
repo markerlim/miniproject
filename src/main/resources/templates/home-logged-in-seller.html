@@ -24,7 +24,10 @@
           </div>
         </nav>
       </header>
-      <div class="main-content" th:classappend="${uenEntry} ? 'modal-active' : ''">
+      <div
+        class="main-content"
+        th:classappend="${uenEntry} ? 'modal-active' : ''"
+      >
         <div class="card-container">
           <div th:each="item : ${item}" class="card">
             <img th:src="${item.image}" alt="Item Image" class="card-image" />
@@ -32,30 +35,31 @@
               <h2 th:text="${item.title}" class="card-title"></h2>
               <p th:text="${item.content}" class="card-description"></p>
               <p th:text="${item.price}" class="card-price"></p>
-              <button class="card-btn">Check Item</button>
+              <a th:href="@{'/seller/home/'+${item.id}}">
+                <button class="card-btn">Check Item</button>
+              </a>
+              <a th:href="@{'/seller/delete/'+${item.id}}">
+                <button class="card-btn">Delete Item</button>
+              </a>
             </div>
           </div>
         </div>
       </div>
       <div th:if="${uenEntry}" class="modal">
+        <p th:text="${errormsg}" style="color: red;"></p>
         <form
-          th:action="@{/api/regAcra}"
+          th:action="@{/seller/home}"
           method="post"
           class="form-listing"
-          th:object="${uenEntry}">
+          th:object="${uenEntry}"
+        >
           <div class="form-group">
             <label for="uen">Enter UEN No:</label>
-            <input
-              type="string"
-              id="uen"
-              name="uen"
-              required
-            />
+            <input type="string" id="uen" name="uen" required />
           </div>
           <button type="submit">Submit</button>
         </form>
       </div>
-      
     </div>
   </body>
 </html>

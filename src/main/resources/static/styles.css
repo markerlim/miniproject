@@ -11,12 +11,13 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #DDE5ED;
 }
 
 header {
   width: 100%;
-  background: #007bff;
-  color: white;
+  background: #92ACA0;
+  color: #3E5D58;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -34,6 +35,7 @@ header {
 .brand-title {
   font-size: 20px;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 .navbar-links {
@@ -51,7 +53,7 @@ header {
 
 .navbar-links ul li a {
   text-decoration: none;
-  color: white;
+  color: #3E5D58;
   font-size: 16px;
 }
 
@@ -69,10 +71,16 @@ header {
   display: none;
 }
 
+.filter-pill.active {
+  background-color: #3E5D58;
+  color: white;
+}
+
+
 .menu-toggle:checked ~ .navbar-links {
   display: flex;
   flex-direction: column;
-  background-color: #007bff;
+  background-color: #3E5D58;
   position: absolute;
   top: 60px;
   right: 0;
@@ -104,7 +112,7 @@ main.login-page {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: calc(100vh - 40px);
   padding: 20px;
   background-color: #f4f4f9;
 }
@@ -140,7 +148,7 @@ main.login-page input[type="password"] {
 main.login-page button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #92ACA0;
   border: none;
   border-radius: 4px;
   color: white;
@@ -149,7 +157,7 @@ main.login-page button {
 }
 
 main.login-page button:hover {
-  background-color: #0056b3;
+  background-color: #92ACA0;
 }
 
 main.login-page .alternative-signin {
@@ -161,7 +169,7 @@ main.login-page .google-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #db4437;
+  background-color: #3E5D58;
   color: white;
   padding: 10px;
   border-radius: 4px;
@@ -197,21 +205,27 @@ main.login-page .google-btn img {
   flex-wrap: wrap;
   gap: 20px;
   padding: 20px;
+  width:calc(100% - 40px);
+  overflow-y: scroll;
   height: calc(100vh - 104px);
-  align-items: start;
+  justify-content: center;
+  align-content: flex-start;
 }
 
 /* Card Styling */
 .card {
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
-  background: #ffffff;
+  background: #92ACA0;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  width: 280px; /* Fixed width for consistency */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 280px;
+  height: fit-content; 
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 
 .card:hover {
   transform: translateY(-5px);
@@ -229,32 +243,45 @@ main.login-page .google-btn img {
 /* Card Content */
 .card-content {
   padding: 16px;
+  max-width: 100%; 
+  white-space: nowrap;
+  overflow: hidden; 
+  box-sizing: border-box;
+}
+
+.card-content form{
+  height:80px;
 }
 
 .card-title {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #333;
+  color: #3E5D58;
   margin-bottom: 10px;
 }
 
 .card-description {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 1.1rem;
+  color: #3E5D58;
+  font-weight: 500;
   margin-bottom: 15px;
+  white-space: nowrap;
+  overflow: hidden; 
+  box-sizing: border-box;
+  text-overflow: ellipsis;
 }
 
 .card-price {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #2a9d8f;
+  color: #3E5D58;
   margin-bottom: 15px;
 }
 
 /* Button Styling */
 .card-btn {
-  background-color: #2a9d8f; /* Primary color */
-  color: #fff;
+  background-color: #3E5D58; /* Primary color */
+  color: #f2f3f8;
   padding: 10px 16px;
   border: none;
   border-radius: 4px;
@@ -274,7 +301,7 @@ main.login-page .google-btn img {
 
 .form-group label {
     font-size: 1rem;
-    color: #333;
+    color: #92ACA0;
     display: block;
     margin-bottom: 8px;
 }
@@ -289,7 +316,7 @@ main.login-page .google-btn img {
     font-size: 1rem;
     color: #333;
     box-sizing: border-box; /* Include padding in the element's total width */
-    background-color: #fff;
+    background-color: #f2f3f8;
     transition: border-color 0.3s ease;
 }
 
@@ -297,7 +324,7 @@ main.login-page .google-btn img {
 .form-group input:focus, 
 .form-group textarea:focus, 
 .form-group select:focus {
-    border-color: #007BFF;
+    border-color: #3E5D58;
     outline: none;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
@@ -324,13 +351,13 @@ main.login-page .google-btn img {
 }
 
 .form-actions .btn-primary {
-    background-color: #007BFF;
-    color: white;
+    background-color: #3E5D58;
+    color: #f2f3f8;
     border: none;
 }
 
 .form-actions .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #92ACA0;
 }
 
 .form-actions .btn-secondary {
@@ -342,7 +369,12 @@ main.login-page .google-btn img {
 .form-actions .btn-secondary:hover {
     background-color: #e0e0e0;
 }
-
+.main-content{
+  overflow: hidden;
+}
+#main-content-filter{
+  height: calc(100vh - 64px);
+}
 /* Form Container */
 .main-content .form-listing {
     max-width: 800px;
@@ -355,9 +387,12 @@ main.login-page .google-btn img {
 
 .main-content h2 {
     text-align: center;
-    color: #333;
+    white-space: wrap;
+    height:56px;
+    color: #3E5D58;
     font-size: 1.5rem;
     margin-bottom: 20px;
+    margin-top: 5px;
 }
 
 /* Responsive Design for Forms */
@@ -379,10 +414,13 @@ main.login-page .google-btn img {
     height:100px;
     gap:5px;
 }
+#qty-label{
+  color:#3E5D58;
+}
 .qty-cart .cart-btn{
-    background-color: #2a9d8f; /* Primary color */
+    background-color: #3E5D58; /* Primary color */
     padding:10px;
-    color: #fff;
+    color: #DDE5ED;
     border: none;
     border-radius: 4px;
     font-size: 0.95rem;
@@ -493,28 +531,40 @@ main.login-page .google-btn img {
 
 .main-content {
   position: relative;
-  padding-left:200px;
-  padding-right:200px;
-  background-color: #f8f9fa;
-}
-
-@media (max-width: 1060px) {
-  .main-content{
-    padding-left: 30px;
-    padding-right: 30px;
-  }
 }
 
 .main-content.modal-active .card-container {
   opacity: 0.5;
   pointer-events: none;
 }
+
 /*Cart Page*/
 .cart-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #f2f3f8;
+  border-radius: 20px;
+  width:600px;
+  padding:20px;
   height:500px;
   gap: 16px;
+}
+.empty-cart-message{
+  height:500px;
+  display: flex;
+  align-items: center;
+}
+
+.cart-main-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: scroll;
+  padding:20px;
+  height:calc(100vh - 104px);
 }
 
 .cart {
@@ -523,7 +573,8 @@ main.login-page .google-btn img {
   align-items: center;
   gap: 16px;
   padding: 15px;
-  width: 400px;
+  height:130px;
+  width: calc(100% - 30px);
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background-color: #fff;
@@ -559,6 +610,22 @@ main.login-page .google-btn img {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
+  border: solid #3E5D58 1px;
+}
+.cart-remove-container{
+  display: flex;
+  width:100%;
+  padding-top:10px;
+  padding-right:10px;
+  justify-content: end !important;
+}
+.cart-remove-container .remove-btn{
+  background-color: #ff496c;
+  color: #f2f3f8;
+  padding:8px;
+  border-radius: 5px;
+  border: none;
+  cursor:pointer;
 }
 
 .cart-content {
@@ -593,26 +660,43 @@ main.login-page .google-btn img {
 }
 
 .cart-func{
-  height:40px;
-  width: 100%;
   display: flex;
-  gap:10px;
+  flex-direction: row;
+  width:600px;
+  padding:20px;
+  height:500px;
+  gap: 16px;
   justify-content: flex-end;
 }
 /*Success Page*/
 .purchased-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  overflow-y: auto ;
+  padding: 20px;
+  gap:5px;
+  height:calc(100vh - 104px);
+}
+
+.order-purchased{
+  display: flex;
+  flex:0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  width: fit-content;
+
+}
+.order-id{
+  min-width: 400px;
+  width:30vw;
 }
 
 .purchased {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 16px;
   padding: 16px;
-  width: 400px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background-color: #fff;
@@ -623,6 +707,7 @@ main.login-page .google-btn img {
   flex-direction: row;
   justify-content: space-between;
 }
+
 .purchased-content div span{
   display: flex;
   flex-direction: row;
@@ -639,14 +724,15 @@ main.login-page .google-btn img {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
+  border: solid #3E5D58 1px;
 }
 
 .purchased-content {
   display: flex;
   flex-direction: column;
   gap:0px;
-  width: 400px;
-  height: 100px;
+  width:calc(100% - 16px);
+  height: 100%;
   justify-content: space-between;
 }
 
@@ -672,6 +758,38 @@ main.login-page .google-btn img {
   margin: 0 !important;
 }
 
+.purchased-btn{
+  display: flex;
+  width:100%;
+  padding-top:10px;
+  padding-right:10px;
+  justify-content: end !important;
+}
+.purchased-btn button{
+  background-color: #3E5D58;
+  color: #f2f3f8;
+  padding:8px;
+  border-radius: 5px;
+  border: none;
+  cursor:pointer;
+
+}
+.cart-func button{
+  background-color: #3E5D58;
+  color: #f2f3f8;
+  padding:8px;
+  border-radius: 5px;
+  border: none;
+  cursor:pointer;
+}
+.search-form button{
+  background-color: #3E5D58;
+  color: #f2f3f8;
+  padding:8px;
+  border-radius: 5px;
+  border: none;
+  cursor:pointer;
+}
 
 /* General error styling */
 .error {
@@ -713,7 +831,7 @@ main.login-page .google-btn img {
 .filter-container {
   overflow-x: auto; /* Enable horizontal scrolling */
   white-space: nowrap; /* Prevent line breaks */
-  margin-bottom: 1rem;
+  text-align: center;
   padding: 0.5rem 0;
   background-color: #f9f9f9; /* Optional: Add a background for better visibility */
   border-bottom: 1px solid #ddd; /* Optional: Add a border */
@@ -723,7 +841,10 @@ main.login-page .google-btn img {
   display: inline-flex; /* Display pills inline */
   gap: 0.5rem; /* Add spacing between pills */
 }
-
+#belowFilter{
+  height:calc(100vh - 157px);
+  overflow-y: scroll;
+}
 .filter-pill {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -738,17 +859,42 @@ main.login-page .google-btn img {
 }
 
 .filter-pill:hover {
-  background-color: #007bff; /* Change to primary color on hover */
+  background-color: #3E5D58; /* Change to primary color on hover */
   color: #fff;
 }
 
 .filter-pill:focus,
 .filter-pill:active {
-  background-color: #0056b3; /* Darker shade for active */
+  background-color: #123c35; /* Darker shade for active */
   color: #fff;
   outline: none; /* Remove default focus outline */
 }
 
+.search-container{
+  padding:20px;
+  display:flex;
+  flex-direction: column;
+  gap:10px;
+}
+
+.search-container input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-container input:focus {
+  border-color: #4CAF50; /* Highlight color on focus */
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+.search-form{
+  display:flex;
+  flex-direction: column;
+  width:300px;
+}
 /*Seller Management*/
 .sales-table {
   width: 100%;
@@ -814,4 +960,142 @@ main.login-page .google-btn img {
 
 .sold-price, .sold-qty {
   font-weight: bold;
+}
+
+.solo-container {
+  max-width: 800px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin:20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  align-items: center;
+}
+#main-container{
+  display:flex;
+  justify-content: center;
+}
+
+.solo-image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.solo-title {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #333;
+}
+
+.solo-description,
+.solo-price,
+.solo-date,
+.solo-seller-id {
+  font-size: 1rem;
+  margin: 5px 0;
+  color: #555;
+}
+
+.solo-container div {
+  width: 400px;
+  word-wrap: break-word; 
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+
+.solo-btn {
+  background-color: #3E5D58;
+  color: #f2f3f8;
+  padding:8px;
+  font-size:  1rem;
+  border-radius: 5px;
+  border: none;
+  cursor:pointer;
+}
+
+.solo-btn:hover {
+  background: #66706e;
+}
+a {
+  text-decoration: none;
+}
+
+/* Entity card styles */
+.entity-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.entity-card {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.entity-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Styling for the entity details */
+.entity-card h2 {
+  font-size: 1.6em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.entity-card p {
+  font-size: 1em;
+  margin: 5px 0;
+  color: #555;
+}
+
+.entity-card strong {
+  font-weight: bold;
+}
+
+/* Cart quantity indicator */
+.cartQtyIndicator {
+  background-color: #3E5D58;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* Style the scrollbar container */
+::-webkit-scrollbar {
+  width: 12px;  /* width of the scrollbar */
+  height: 12px; /* height for horizontal scrollbar */
+}
+
+/* Style the scrollbar track (the part the thumb slides within) */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;  /* Light gray background for the track */
+  border-radius: 10px;
+}
+
+/* Style the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: #888;    /* Color of the thumb */
+  border-radius: 10px;
+}
+
+/* Change thumb color when hovered */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;   /* Darker color on hover */
+}
+
+/* Style the corner where horizontal and vertical scrollbars meet */
+::-webkit-scrollbar-corner {
+  background: #f1f1f1; /* Match the track background */
 }

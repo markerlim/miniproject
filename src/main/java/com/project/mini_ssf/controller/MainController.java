@@ -1,5 +1,7 @@
 package com.project.mini_ssf.controller;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -41,6 +43,7 @@ import com.stripe.param.ProductCreateParams.DefaultPriceData;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
@@ -82,6 +85,21 @@ public class MainController {
         return mav;
     }
 
+    @GetMapping("/filter/{category}")
+    public ModelAndView HomePageWFilter(@PathVariable String category, HttpServletRequest request) {
+        ModelAndView mav = new ModelAndView();
+        List<PreOrderListing> list = listingService.getAllListing();
+        list = list.stream()
+                .filter(listing -> category.equalsIgnoreCase(listing.getCategory()))
+                .collect(Collectors.toList());
+        
+        mav.addObject("currentUrl", request.getRequestURI());
+
+        mav.addObject("item", list);
+        mav.setViewName("home");
+        return mav;
+    }
+
     @GetMapping("/login")
     public ModelAndView LoginPage() {
         ModelAndView mav = new ModelAndView("login");
@@ -97,7 +115,7 @@ public class MainController {
     }
 
     @GetMapping("/error")
-    public String errorMessage(){
+    public String errorMessage() {
         return "error";
     }
 
@@ -167,7 +185,7 @@ public class MainController {
         List<PreOrderListing> list = listingService.getSellerPostings(sellerId);
         mav.addObject("item", list);
 
-        mav.setViewName("home-logged-in-seller");
+        mav.setViewName("redirect:/seller/home");
         return mav;
     }
 
@@ -176,8 +194,19 @@ public class MainController {
         ModelAndView mav = new ModelAndView();
         List<EntityDetails> entities = listingService.getAllSellers();
         System.out.println(entities);
+        mav.addObject("cartQty", cartService.getCartQty());
         mav.addObject("entities", entities);
         mav.setViewName("seller-page");
+        return mav;
+    }
+
+    @GetMapping("/product/{id}")
+    public ModelAndView viewProductWithoutLoggedIn(@PathVariable String id) {
+        ModelAndView mav = new ModelAndView("buyer-product");
+        PreOrderListing listing = listingService.getOneListingFromHistory(id);
+        EntityDetails ent = acraService.getUENBySellerId(listing.getSellerId());
+        mav.addObject("ent", ent);
+        mav.addObject("item", listing);
         return mav;
     }
 
@@ -193,9 +222,12 @@ public class MainController {
     @GetMapping("/buyer/home")
     public ModelAndView LoggedInHomePage(@AuthenticationPrincipal OAuth2User oAuth2User,
             @ModelAttribute("message") String message,
-            HttpSession session) {
+            HttpSession session, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView();
         String role = (String) session.getAttribute("role");
+        mav.addObject("cartQty", cartService.getCartQty());
+        mav.addObject("currentUrl", request.getRequestURI());
+
         if ("seller".equals(role)) {
             mav.setViewName("redirect:/");
             return mav;
@@ -219,19 +251,22 @@ public class MainController {
     public ModelAndView FilterFromHome(@AuthenticationPrincipal OAuth2User oAuth2User,
             @ModelAttribute("message") String message,
             @PathVariable String category,
-            HttpSession session) {
+            HttpSession session, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView();
         String role = (String) session.getAttribute("role");
+        mav.addObject("currentUrl", request.getRequestURI());
+        mav.addObject("cartQty", cartService.getCartQty());
+
         if ("seller".equals(role)) {
             mav.setViewName("redirect:/");
             return mav;
         }
         List<PreOrderListing> list = listingService.getAllListing();
-        list = list.stream() 
-                    .filter(listing -> category.equalsIgnoreCase(listing.getCategory()))
-                    .collect(Collectors.toList());
+        list = list.stream()
+                .filter(listing -> category.equalsIgnoreCase(listing.getCategory()))
+                .collect(Collectors.toList());
         mav.addObject("item", list);
-        
+
         if (oAuth2User != null) {
             mav.addObject("userName", oAuth2User.getName());
         }
@@ -243,10 +278,22 @@ public class MainController {
         return mav;
     }
 
+    @GetMapping("/buyer/home/product/{id}")
+    public ModelAndView viewProductBuyer(@PathVariable String id) {
+        ModelAndView mav = new ModelAndView("buyer-product-logged-in");
+        PreOrderListing listing = listingService.getOneListingFromHistory(id);
+        EntityDetails ent = acraService.getUENBySellerId(listing.getSellerId());
+        mav.addObject("ent", ent);
+        mav.addObject("item", listing);
+        return mav;
+    }
+
     @GetMapping("/buyer/purchases")
     public ModelAndView PurchasedPage(HttpSession session) {
         ModelAndView mav = new ModelAndView("success");
         String buyerId = session.getAttribute("userId").toString();
+        mav.addObject("cartQty", cartService.getCartQty());
+
         List<Orders> list = listingService.getBuyerPurchases(buyerId);
         mav.addObject("item", list);
         return mav;
@@ -256,6 +303,8 @@ public class MainController {
     public ModelAndView CartPage(@AuthenticationPrincipal OAuth2User oAuth2User,
             @ModelAttribute("message") String message) {
         ModelAndView mav = new ModelAndView("cart-page");
+        mav.addObject("cartQty", cartService.getCartQty());
+
         List<PreOrderListing> list = cartService.getCartItems();
         mav.addObject("item", list);
 
@@ -305,19 +354,22 @@ public class MainController {
 
         boolean success = cartService.addItemToCart(cartItem);
 
-        if (success) {
-            redirectAttributes.addFlashAttribute("message", "Item added to cart");
-        } else {
-            redirectAttributes.addFlashAttribute("message", "Failed to add item to cart");
-        }
-
         return "redirect:/buyer/home";
     }
 
     @PostMapping("/confirm-sale")
-    public String confirmSales(@RequestParam String listingId, @RequestParam String buyerId, @RequestParam String orderId){
+    public String confirmSales(@RequestParam String listingId, @RequestParam String buyerId,
+            @RequestParam String orderId) {
         listingService.setSellerConfirmSalesComplete(buyerId, orderId, listingId);
         return "redirect:/seller/sales";
+    }
+
+    @PostMapping("/confirm-purchased")
+    public String confirmPurchasedd(@RequestParam String listingId,
+            @RequestParam String orderId, HttpSession session) {
+        String buyerId = session.getAttribute("userId").toString();
+        listingService.setBuyerConfirmSalesComplete(buyerId, orderId, listingId);
+        return "redirect:/buyer/purchases";
     }
 
     @GetMapping("/seller/home")
@@ -343,20 +395,75 @@ public class MainController {
         return mav;
     }
 
+    @GetMapping("/seller/home/{id}")
+    public ModelAndView viewProduct(@PathVariable String id) {
+        ModelAndView mav = new ModelAndView("seller-product");
+        PreOrderListing listing = listingService.getOneListingFromHistory(id);
+        EntityDetails ent = acraService.getUENBySellerId(listing.getSellerId());
+        mav.addObject("ent", ent);
+        mav.addObject("item", listing);
+        return mav;
+    }
+
     @GetMapping("/seller/newposting")
-    public ModelAndView newPostingAsSeller() {
+    public ModelAndView newPostingAsSeller(HttpSession session) {
         ModelAndView mav = new ModelAndView("form");
         PreOrderListing preOrderListing = new PreOrderListing();
+        String sellerId = session.getAttribute("userId").toString();
+        if (!acraService.checkIfUserAddedUEN(sellerId)) {
+            mav.setViewName("redirect:/seller/home");
+        }
         mav.addObject("preOrderListing", preOrderListing);
         return mav;
     }
 
     @GetMapping("/seller/sales")
-    public ModelAndView getSalesOrderPage(HttpSession session){
+    public ModelAndView getSalesOrderPage(HttpSession session) {
+        ModelAndView mav = new ModelAndView("sellerOrderManagement");
+        String sellerId = session.getAttribute("userId").toString();
+        if (!acraService.checkIfUserAddedUEN(sellerId)) {
+            mav.setViewName("redirect:/seller/home");
+        }
+        List<SellerOrderTracker> list = listingService.getSellerOrderTracker(sellerId);
+        mav.addObject("item", list);
+        return mav;
+    }
+
+    @GetMapping("/seller/sales/user")
+    public ModelAndView getSalesOrderPageByEmail(HttpSession session, @RequestParam String email) {
+        ModelAndView mav = new ModelAndView();
+
+        String sellerId = session.getAttribute("userId").toString();
+        mav.setViewName("sellerOrderManagement");
+        List<SellerOrderTracker> list = listingService.getSellerOrderTracker(sellerId);
+
+        List<SellerOrderTracker> filteredList = list.stream()
+                .filter(order -> order.getBuyerEmail().equalsIgnoreCase(email))
+                .collect(Collectors.toList());
+
+        mav.addObject("item", filteredList);
+        return mav;
+    }
+
+    @GetMapping("/seller/sales/listing")
+    public ModelAndView getSalesOrderPageByListing(HttpSession session, @RequestParam String listingId) {
         ModelAndView mav = new ModelAndView("sellerOrderManagement");
         String sellerId = session.getAttribute("userId").toString();
         List<SellerOrderTracker> list = listingService.getSellerOrderTracker(sellerId);
-        mav.addObject("item", list);
+        List<SellerOrderTracker> filteredList = list.stream()
+                .filter(order -> order.getListingId().equals(listingId))
+                .collect(Collectors.toList());
+
+        mav.addObject("item", filteredList);
+        return mav;
+    }
+    @GetMapping("/seller/delete/{id}")
+    public ModelAndView deleteListing(@PathVariable String id, HttpSession session){
+        ModelAndView mav = new ModelAndView();
+        String sellerId = session.getAttribute("userId").toString();
+        listingService.deleteListing(id);
+        listingService.deleteListingFromSellerPostings(sellerId, id);
+        mav.setViewName("redirect:/seller/home");
         return mav;
     }
 

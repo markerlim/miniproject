@@ -24,6 +24,10 @@ public class ListingRepo {
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put("listing",id,jsonObject.toString());
     }
+    public void saveToListingHistory(JsonObject jsonObject, String id) {
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.put("listingHistory",id,jsonObject.toString());
+    }
 
     public Map<String,String> getAllListingFromRedis(){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
@@ -39,9 +43,17 @@ public class ListingRepo {
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get("listing", id);
     }
+    public String getOneListingFromHistory(String id){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get("listingHistory", id);
+    }
     public void saveUserListing(String userId,JsonObject list){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put(userId, "listing", list.toString());
+    }
+    public void saveUserListingHistory(String userId,JsonObject list){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.put(userId, "listingHistory", list.toString());
     }
     public void saveUserPurchases(String userId,JsonObject list){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
@@ -72,5 +84,10 @@ public class ListingRepo {
     public String getUserName(String userId){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         return hashOps.get(userId,"name");
+    }
+
+    public void deleteListing(String id){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        hashOps.delete("listing", id);
     }
 }

@@ -10,30 +10,42 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.project.mini_ssf.model.EntityDetails;
+import com.project.mini_ssf.repo.ListingRepo;
 import com.project.mini_ssf.service.AcraService;
 
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/seller")
 public class MainRestController {
 
     @Autowired
     private AcraService acraService;
 
+    @Autowired
+    private ListingRepo listingRepo;
+
     @Value("${stripe.api.key}")
     private String stripeApi;
 
-    @PostMapping("/regAcra")
+    @PostMapping("/home")
     public ModelAndView SellerDetails(@RequestParam("uen") String uen, HttpSession session) {
         ModelAndView mav = new ModelAndView();
         mav.setViewName("home-logged-in-seller");
         EntityDetails ent = acraService.getEntityByUen(uen);
-        if (ent == null || acraService.checkIfUENregistered(uen)) {
+        if (acraService.checkIfUENregistered(uen)) {
+            mav.addObject("uenEntry", true);
+            return mav;
+        }
+        if(ent == null){
+            mav.addObject("errormsg", "Please enter a registered UEN!");
             mav.addObject("uenEntry", true);
             return mav;
         }
         String sellerId = (String) session.getAttribute("userId");
+        ent.setSellerId(sellerId);
+        ent.setSellerEmail(listingRepo.getUserEmail(sellerId));
+        ent.setSellerName(listingRepo.getUserName(sellerId));
         acraService.saveAcraToSeller(sellerId, ent);
         return mav;
     }

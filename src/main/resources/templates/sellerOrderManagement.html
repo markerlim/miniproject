@@ -25,6 +25,32 @@
         </nav>
       </header>
       <div class="main-content">
+        <div class="search-container">
+          <form action="/seller/sales/user" method="get" class="search-form">
+            <label for="buyer-email">Search by Buyer Email:</label>
+            <div>
+              <input
+                type="text"
+                id="buyer-email"
+                name="email"
+                placeholder="Enter buyer email"
+              />
+              <button type="submit">Search</button>
+            </div>
+          </form>
+          <form action="/seller/sales/listing" method="get" class="search-form">
+            <label for="listingId">Search by Item Id:</label>
+            <div>
+              <input
+                type="text"
+                id="listingId"
+                name="listingId"
+                placeholder="Enter item Id"
+              />
+              <button type="submit" class="search-btn">Search</button>
+            </div>
+          </form>
+        </div>
         <div class="sold-container">
           <table class="sales-table">
             <thead>
@@ -33,6 +59,7 @@
                 <th>Buyer Name</th>
                 <th>Buyer Email</th>
                 <th>Item</th>
+                <th>Item Id</th>
                 <th>Price</th>
                 <th>Qty</th>
                 <th>Action</th>
@@ -44,15 +71,18 @@
                 <td th:text="${sellerOrder.buyerName}"></td>
                 <td th:text="${sellerOrder.buyerEmail}"></td>
                 <div th:each="listing : ${sellerOrder.listing}">
-                  <td>
+                  <td style="display: flex; flex-direction: row; align-items: center;">
                     <img
                       th:src="${listing.image}"
                       alt="Item Image"
                       class="sold-image"
                     />
-                    <h2 th:text="${listing.title}"></h2>
-                    <p th:text="${listing.content}"></p>
+                    <span
+                      th:text="${listing.title}"
+                      style="text-align: left;"
+                    ></span>
                   </td>
+                  <td th:text="${listing.id}"></td>
                   <td th:text="${listing.price}"></td>
                   <td th:text="${sellerOrder.quantity}"></td>
                   <td>
@@ -76,7 +106,9 @@
                           th:name="orderId"
                           th:value="${sellerOrder.orderId}"
                         />
-                        <button type="submit">Confirm Sale</button>
+                        <button type="submit" class="card-btn">
+                          Confirm Sale
+                        </button>
                       </form>
                     </div>
                   </td>

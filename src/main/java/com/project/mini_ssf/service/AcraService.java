@@ -58,16 +58,21 @@ public class AcraService {
 
                 if (records != null && !records.isEmpty()) {
                     JsonObject record = records.getJsonObject(0);
-
+                    if ("Deregistered".equals(record.getString("uen_status_desc").trim())) {
+                        return null;
+                    }
                     EntityDetails entityDetails = new EntityDetails();
                     entityDetails.setUen(record.getString("uen", null));
-                    entityDetails.setIssuanceAgencyId(record.getString("issuance_agency_id", null));
-                    entityDetails.setUenStatus(record.getString("uen_status", null));
+                    entityDetails.setIssuanceAgencyId(record.getString("issuance_agency_desc", null));
+                    entityDetails.setUenStatus(record.getString("uen_status_desc", null));
                     entityDetails.setEntityName(record.getString("entity_name", null));
-                    entityDetails.setEntityType(record.getString("entity_type", null));
+                    entityDetails.setEntityType(record.getString("entity_type_desc", null));
                     entityDetails.setUenIssueDate(LocalDate.parse(record.getString("uen_issue_date", null)));
                     entityDetails.setRegStreetName(record.getString("reg_street_name", null));
                     entityDetails.setRegPostalCode(record.getString("reg_postal_code", null));
+                    entityDetails.setSellerId(record.getString("sellerId", null));
+                    entityDetails.setSellerEmail(record.getString("sellerEmail", null));
+                    entityDetails.setSellerName(record.getString("sellerName", null));
 
                     return entityDetails;
                 }
@@ -80,7 +85,7 @@ public class AcraService {
         }
     }
 
-    public void saveAcraToSeller(String userUuid,EntityDetails ent) {
+    public void saveAcraToSeller(String userUuid, EntityDetails ent) {
         JsonObject jsonObject = Json.createObjectBuilder()
                 .add("uen", ent.getUen() != null ? ent.getUen() : "")
                 .add("issuanceAgencyId", ent.getIssuanceAgencyId() != null ? ent.getIssuanceAgencyId() : "")
@@ -90,9 +95,12 @@ public class AcraService {
                 .add("uenIssueDate", ent.getUenIssueDate() != null ? ent.getUenIssueDate().toString() : "")
                 .add("regStreetName", ent.getRegStreetName() != null ? ent.getRegStreetName() : "")
                 .add("regPostalCode", ent.getRegPostalCode() != null ? ent.getRegPostalCode() : "")
+                .add("sellerId", ent.getSellerId() != null ? ent.getSellerId() : "")
+                .add("sellerEmail", ent.getSellerEmail() != null ? ent.getSellerEmail() : "")
+                .add("sellerName", ent.getSellerName() != null ? ent.getSellerName() : "")
                 .build();
-                
-        acraRepo.saveAcraToSeller(userUuid,jsonObject);
+
+        acraRepo.saveAcraToSeller(userUuid, jsonObject);
         acraRepo.addToSellerDB(userUuid, jsonObject);
     }
 
@@ -100,7 +108,30 @@ public class AcraService {
         return acraRepo.checkIfUserAddedUEN(userId);
     }
 
-    public Boolean checkIfUENregistered(String uen){
+    public Boolean checkIfUENregistered(String uen) {
         return acraRepo.checkIfUserAddedUEN(uen);
+    }
+
+    public EntityDetails getUENBySellerId(String userId) {
+        String rawdata = acraRepo.getUENBySellerId(userId);
+        System.out.println(rawdata);
+        EntityDetails entityDetails = new EntityDetails();
+        JsonReader reader = Json.createReader(new StringReader(rawdata));
+        JsonObject jObject = reader.readObject();
+
+        entityDetails.setUen(jObject.getString("uen", null));
+        entityDetails.setIssuanceAgencyId(jObject.getString("issuanceAgencyId", null));
+        entityDetails.setUenStatus(jObject.getString("uenStatus", null));
+        entityDetails.setEntityName(jObject.getString("entityName", null));
+        entityDetails.setEntityType(jObject.getString("entityType", null));
+        entityDetails.setUenIssueDate(LocalDate.parse(jObject.getString("uenIssueDate", null)));
+        entityDetails.setRegStreetName(jObject.getString("regStreetName", null));
+        entityDetails.setRegPostalCode(jObject.getString("regPostalCode", null));
+        entityDetails.setSellerId(jObject.getString("sellerId", null));
+        entityDetails.setSellerEmail(jObject.getString("sellerEmail", null));
+        entityDetails.setSellerName(jObject.getString("sellerName", null));
+
+        return entityDetails;
+
     }
 }

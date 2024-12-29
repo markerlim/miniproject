@@ -27,12 +27,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/set-role", "/styles.css", "/login","/entities").permitAll()
+                .requestMatchers("/", "/set-role", "/styles.css", "/login", "/filter/**", "/product/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth -> oauth
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true)
+                .defaultSuccessUrl("/", true)
                 .successHandler(authenticationSuccessHandler()) 
             )
             .logout(logout -> logout

@@ -19,7 +19,7 @@
               <li><a href="/">Home</a></li>
               <li><a href="/buyer/purchases">Orders</a></li>
               <li><a href="/entities">Sellers</a></li>
-              <li><a href="/buyer/cart">Cart</a></li>
+              <li><a href="/buyer/cart">Cart <span class="cartQtyIndicator" th:text="${cartQty}"></span></a></li>
               <li><a href="/logout" id="logoutForm">Logout</a></li>
             </ul>
           </div>
@@ -27,17 +27,24 @@
       </header>
       <div class="main-content">
         <div class="purchased-container">
-          <div th:each="order : ${item}">
-            <span>
+          <div th:each="order : ${item}" class="order-purchased">
+            <span class="order-id">
               Order Id:
-              <p th:text="${order.orderId}" class="purchased-price"></p>
+              <p th:text="${order.orderId}" class="purchased-id"></p>
             </span>
             <div th:each="listing : ${order.listing}" class="purchased">
-              <img th:src="${listing.image}" alt="Item Image" class="purchased-image" />
+              <img
+                th:src="${listing.image}"
+                alt="Item Image"
+                class="purchased-image"
+              />
               <div class="purchased-content">
                 <span>
                   <h2 th:text="${listing.title}" class="purchased-title"></h2>
-                  <p th:text="${listing.content}" class="purchased-description"></p>
+                  <p
+                    th:text="${listing.content}"
+                    class="purchased-description"
+                  ></p>
                 </span>
                 <div>
                   <span>
@@ -49,14 +56,32 @@
                     <p th:text="${listing.qty}" class="purchased-qty"></p>
                   </span>
                 </div>
-                <div th:if="${listing.sellerConfirmSalesComplete}">
-                  Order Collected
+                <div class="purchased-status">
+                  Status:
+                  <div th:if="${listing.sellerConfirmSalesComplete and !listing.buyerConfirmSalesComplete}">
+                    Order ready for collection!
+                  </div>
+                  <div th:if="${!listing.sellerConfirmSalesComplete and !listing.buyerConfirmSalesComplete}">
+                    Seller will inform you about collection when ready!
+                  </div>
+                  <div th:if="${listing.buyerConfirmSalesComplete}">
+                    You have authorized payment to be released to seller!
+                  </div>
                 </div>
-                <div th:if="${!listing.sellerConfirmSalesComplete}">
-                  Seller will inform you about collection when ready!
-                </div>
-                <div th:if="${listing.buyerConfirmSalesComplete}">
-                  You have authorized payment to be released to seller!
+                <div th:if="${listing.sellerConfirmSalesComplete and !listing.buyerConfirmSalesComplete}" class="purchased-btn">
+                  <form th:action="@{/confirm-purchased}" method="post">
+                    <input
+                      type="hidden"
+                      th:name="listingId"
+                      th:value="${listing.id}"
+                    />
+                    <input
+                      type="hidden"
+                      th:name="orderId"
+                      th:value="${order.orderId}"
+                    />
+                    <button type="submit">Confirm Purchase</button>
+                  </form>
                 </div>
               </div>
             </div>

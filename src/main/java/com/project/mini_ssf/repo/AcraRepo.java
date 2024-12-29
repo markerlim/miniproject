@@ -26,6 +26,11 @@ public class AcraRepo {
         return true;
     }
     
+    public String getUENBySellerId(String userId){
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        return hashOps.get("acra", userId);
+    }
+    
     public void saveAcraToSeller(String userId,JsonObject list){
         HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         hashOps.put(userId, "acra", list.toString());

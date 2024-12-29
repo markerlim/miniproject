@@ -19,26 +19,28 @@
               <li><a href="/">Home</a></li>
               <li><a href="/buyer/purchases">Orders</a></li>
               <li><a href="/entities">Sellers</a></li>
-              <li><a href="/buyer/cart">Cart</a></li>
+              <li><a href="/buyer/cart">Cart <span class="cartQtyIndicator" th:text="${cartQty}"></span></a></li>
               <li><a href="/logout" id="logoutForm">Logout</a></li>
             </ul>
           </div>
         </nav>
       </header>
-      <div class="filter-container">
-        <div class="filter-pills">
-          <a href="/buyer/home" class="filter-pill">All</a>
-          <a href="/buyer/home/electronics" class="filter-pill">Electronics</a>
-          <a href="/buyer/home/fashion-apparel" class="filter-pill">Fashion & Apparel</a>
-          <a href="/buyer/home/toys-collectibles" class="filter-pill">Toys & Collectibles</a>
-          <a href="/buyer/home/books-comics" class="filter-pill">Books & Comics</a>
-          <a href="/buyer/home/video-games" class="filter-pill">Video Games</a>
-          <a href="/buyer/home/home-kitchen" class="filter-pill">Home & Kitchen</a>
-          <a href="/buyer/home/music-media" class="filter-pill">Music & Media</a>
-        </div>        
-      <div class="main-content">
-        <div class="card-container" id="belowFilterPill">
+      <div class="main-content"  id="main-content-filter">
+        <div class="filter-container">
+          <div class="filter-pills">
+            <a href="/buyer/home" class="filter-pill" th:classappend="${currentUrl == '/buyer/home' ? ' active' : ''}">All</a>
+            <a href="/buyer/home/electronics" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/electronics' ? ' active' : ''}">Electronics</a>
+            <a href="/buyer/home/fashion-apparel" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/fashion-apparel' ? ' active' : ''}">Fashion & Apparel</a>
+            <a href="/buyer/home/toys-collectibles" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/toys-collectibles' ? ' active' : ''}">Toys & Collectibles</a>
+            <a href="/buyer/home/books-comics" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/books-comics' ? ' active' : ''}">Books & Comics</a>
+            <a href="/buyer/home/video-games" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/video-games' ? ' active' : ''}">Video Games</a>
+            <a href="/buyer/home/home-kitchen" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/home-kitchen' ? ' active' : ''}">Home & Kitchen</a>
+            <a href="/buyer/home/music-media" class="filter-pill" th:classappend="${currentUrl == '/buyer/home/music-media' ? ' active' : ''}">Music & Media</a>
+          </div>
+        </div>
+        <div class="card-container" id="belowFilter">
           <div th:each="item : ${item}" class="card">
+            <a th:href="@{'/buyer/home/product/'+${item.id}}">
             <img th:src="${item.image}" alt="Item Image" class="card-image" />
             <div class="card-content">
               <h2 th:text="${item.title}" class="card-title"></h2>
@@ -69,7 +71,7 @@
 
                 <div class="qty-cart">
                   <div class="form-group">
-                    <label for="qty">Quantity:</label>
+                    <label for="qty"  id="qty-label">Quantity:</label>
                     <input
                       type="number"
                       id="qty"
@@ -93,12 +95,9 @@
                 </div>
               </form>
             </div>
+          </a>
           </div>
         </div>
-        <div th:if="${message != null and message != ''}" class="message alert alert-success">
-            <p th:text="${message}"></p>
-        </div>
-      </div>
     </div>
   </body>
 </html>

@@ -17,15 +17,27 @@
           <div class="navbar-links">
             <ul>
               <li><a href="/">Home</a></li>
-              <li><a href="/entities">Sellers</a></li>
               <li><a href="/login" class="login-btn">Login</a></li>
             </ul>
           </div>
         </nav>
       </header>
-      <div class="main-content">
-        <div class="card-container">
+      <div class="main-content"  id="main-content-filter">
+        <div class="filter-container">
+          <div class="filter-pills">
+            <a href="/" class="filter-pill" th:classappend="${currentUrl == '/' ? ' active' : ''}">All</a>
+            <a href="/filter/electronics" class="filter-pill" th:classappend="${currentUrl == '/filter/electronics' ? ' active' : ''}">Electronics</a>
+            <a href="/filter/fashion-apparel" class="filter-pill" th:classappend="${currentUrl == '/filter/fashion-apparel' ? ' active' : ''}">Fashion & Apparel</a>
+            <a href="/filter/toys-collectibles" class="filter-pill" th:classappend="${currentUrl == '/filter/toys-collectibles' ? ' active' : ''}">Toys & Collectibles</a>
+            <a href="/filter/books-comics" class="filter-pill" th:classappend="${currentUrl == '/filter/books-comics' ? ' active' : ''}">Books & Comics</a>
+            <a href="/filter/video-games" class="filter-pill" th:classappend="${currentUrl == '/filter/video-games' ? ' active' : ''}">Video Games</a>
+            <a href="/filter/home-kitchen" class="filter-pill" th:classappend="${currentUrl == '/filter/home-kitchen' ? ' active' : ''}">Home & Kitchen</a>
+            <a href="/filter/music-media" class="filter-pill" th:classappend="${currentUrl == '/filter/music-media' ? ' active' : ''}">Music & Media</a>
+          </div>
+        </div>
+        <div class="card-container" id="belowFilter">
           <div th:each="item : ${item}" class="card">
+            <a th:href="@{'/product/'+${item.id}}">
             <img th:src="${item.image}" alt="Item Image" class="card-image" />
             <div class="card-content">
               <h2 th:text="${item.title}" class="card-title"></h2>
@@ -79,6 +91,7 @@
                 </div>
               </form>
             </div>
+          </a>
           </div>
         </div>
         <div th:if="${message != null and message != ''}" class="message alert alert-success">

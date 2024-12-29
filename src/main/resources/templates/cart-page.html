@@ -19,57 +19,51 @@
               <li><a href="/">Home</a></li>
               <li><a href="/buyer/purchases">Orders</a></li>
               <li><a href="/entities">Sellers</a></li>
-              <li><a href="/buyer/cart">Cart</a></li>
+              <li><a href="/buyer/cart">Cart <span class="cartQtyIndicator" th:text="${cartQty}"></span></a></li>
               <li><a href="/logout" id="logoutForm">Logout</a></li>
             </ul>
           </div>
         </nav>
       </header>
       <div class="main-content">
-        <div class="cart-container">
-          <div th:each="item : ${item}" class="cart">
-            <img
-              th:src="${item.image}"
-              alt="Item Image"
-              class="cart-image"
-            />
-            <div class="cart-content">
-              <span>
-                <h2 th:text="${item.title}" class="cart-title"></h2>
-                <p th:text="${item.content}" class="cart-description"></p>
-              </span>
-              <div>
+        <div class="cart-main-content">
+          <div class="cart-container">
+            <div th:if="${#lists.isEmpty(item)}" class="empty-cart-message">
+              Cart is empty
+            </div>
+            <div th:each="item : ${item}" class="cart">
+              <img th:src="${item.image}" alt="Item Image" class="cart-image" />
+              <div class="cart-content">
                 <span>
-                  S$
-                  <p th:text="${item.price}" class="cart-price"></p>
+                  <h2 th:text="${item.title}" class="cart-title"></h2>
                 </span>
-                <span>
-                  Qty:
-                  <p th:text="${item.qty}" class="cart-qty"></p>
-                </span>
+                <div>
+                  <span>
+                    S$
+                    <p th:text="${item.price}" class="cart-price"></p>
+                  </span>
+                  <span>
+                    Qty:
+                    <p th:text="${item.qty}" class="cart-qty"></p>
+                  </span>
+                </div>
+                <div class="cart-remove-container">
+                  <form th:action="@{/cart-item-del}" method="post">
+                    <input type="hidden" th:value="${item.id}" name="id" />
+                    <button type="submit" class="remove-btn">Remove</button>
+                  </form>
+                </div>
               </div>
-              <form th:action="@{/cart-item-del}" method="post">
-                <input type="hidden" th:value="${item.id}" name="id" />
-                  <button type="submit" class="cart-btn">
-                    X
-                </button>
-              </form>
             </div>
           </div>
-        </div>
-        <div class="cart-func">
-          <a href="/clear-cart">
-            <button>Clear Cart</button>
-          </a>
-          <a href="/api/checkout/payment-link">
-            <button>CheckOut</button>
-          </a>
-        </div>
-        <div
-          th:if="${message != null and message != ''}"
-          class="message alert alert-success"
-        >
-          <p th:text="${message}"></p>
+          <div class="cart-func">
+            <a href="/clear-cart">
+              <button>Clear Cart</button>
+            </a>
+            <a href="/api/checkout/payment-link">
+              <button>CheckOut</button>
+            </a>
+          </div>
         </div>
       </div>
     </div>

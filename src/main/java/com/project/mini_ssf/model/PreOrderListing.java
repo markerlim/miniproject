@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Max;
 
 public class PreOrderListing {
 
@@ -15,11 +16,11 @@ public class PreOrderListing {
     private String stripeProductId;
 
     @NotBlank(message = "Title is required")
-    @Size(min = 3, max = 100, message = "Title should be between 3 and 100 characters")
+    @Size(min = 5, max = 40, message = "Title should be between 5 and 40 characters")
     private String title;
 
     @NotBlank(message = "Content is required")
-    @Size(min = 5, max = 500, message = "Content should be between 5 and 500 characters")
+    @Size(min = 50, max = 600, message = "Content should be between 50 and 600 characters")
     private String content;
 
     @NotBlank(message = "Image URL is required")
@@ -33,6 +34,7 @@ public class PreOrderListing {
 
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price should be greater than or equal to 0")
+    @Max(value = 999999,message = "Price should be lesser than or equal to 999999" )
     private Long price;
 
     @NotNull(message = "Deadline is required")

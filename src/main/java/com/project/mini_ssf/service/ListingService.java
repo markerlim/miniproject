@@ -39,6 +39,7 @@ public class ListingService {
 
     public void postToListingServer(JsonObject jsonObject, String id) {
         listingRepo.saveToRedis(jsonObject, id);
+        listingRepo.saveToListingHistory(jsonObject, id);
     }
 
     public List<PreOrderListing> getAllListing() {
@@ -97,6 +98,31 @@ public class ListingService {
         return pol;
     }
 
+    public PreOrderListing getOneListingFromHistory(String id) {
+        String stringC = listingRepo.getOneListingFromHistory(id);
+
+        Reader reader = new StringReader(stringC);
+        JsonReader jsonReader = Json.createReader(reader);
+        JsonObject jsonMsgObj = jsonReader.readObject();
+
+        PreOrderListing pol = new PreOrderListing();
+        pol.setId(id);
+        pol.setTitle(jsonMsgObj.getString("title"));
+        pol.setContent(jsonMsgObj.getString("content"));
+        pol.setImage(jsonMsgObj.getString("image"));
+        pol.setCategory(jsonMsgObj.getString("category"));
+        pol.setSellerId(jsonMsgObj.getString("sellerId"));
+        pol.setStripeProductId(jsonMsgObj.getString("stripeProductId"));
+        pol.setPrice(jsonMsgObj.getJsonNumber("price").longValue());
+        pol.setDeadline(
+                Instant.ofEpochMilli(jsonMsgObj.getJsonNumber("deadline").longValue())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate());
+        pol.setBuyerConfirmSalesComplete(jsonMsgObj.getBoolean("buyerConfirmSalesComplete"));
+        pol.setSellerConfirmSalesComplete(jsonMsgObj.getBoolean("sellerConfirmSalesComplete"));
+        return pol;
+    }
+
     public void saveSellerPosting(String userUuid) throws StripeException {
 
         List<PreOrderListing> allListings = getAllListing();
@@ -130,6 +156,7 @@ public class ListingService {
         JsonObject finalJsonObject = jsonObjectBuilder.build();
 
         listingRepo.saveUserListing(userUuid, finalJsonObject);
+        listingRepo.saveUserListingHistory(userUuid, finalJsonObject);
     }
 
     public void updateSellerOrder(String userUuid, PreOrderListing listing, int quantity, String orderId,
@@ -267,6 +294,50 @@ public class ListingService {
         return listings;
     }
 
+    public void deleteListingFromSellerPostings(String userUuid, String listingIdToDelete) {
+        List<PreOrderListing> list = getSellerPostings(userUuid);  // Get all the listings for the seller
+        
+        if (list == null || list.isEmpty()) {
+            System.out.println("No listings found for this user.");
+            return;
+        }
+        
+        PreOrderListing listingToRemove = null;
+        for (PreOrderListing listing : list) {
+            if (listing.getId().equals(listingIdToDelete)) {
+                listingToRemove = listing;
+                break;
+            }
+        }
+    
+        if (listingToRemove != null) {
+            list.remove(listingToRemove);
+            System.out.println("Listing removed: " + listingIdToDelete);
+    
+            JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
+            for (PreOrderListing listing : list) {
+                jsonBuilder.add(listing.getId(), Json.createObjectBuilder()
+                        .add("id", listing.getId())
+                        .add("title", listing.getTitle())
+                        .add("content", listing.getContent())
+                        .add("image", listing.getImage())
+                        .add("category", listing.getCategory())
+                        .add("sellerId", listing.getSellerId())
+                        .add("stripeProductId", listing.getStripeProductId())
+                        .add("price", listing.getPrice())
+                        .add("deadline", listing.getDeadline().toString())
+                        .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                        .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete())
+                        .build());
+            }
+
+            listingRepo.saveUserListing(userUuid, jsonBuilder.build());
+        } else {
+            System.out.println("Listing with ID " + listingIdToDelete + " not found.");
+        }
+    }
+    
     public List<Orders> getBuyerPurchases(String userUuid) {
         String list = listingRepo.getuserPurchases(userUuid);
 
@@ -347,7 +418,7 @@ public class ListingService {
                 orderTracker.setSellerConfirmSalesComplete(orderJson.getBoolean("sellerConfirmSalesComplete"));
                 orderTracker.setBuyerConfirmSalesComplete(orderJson.getBoolean("buyerConfirmSalesComplete"));
 
-                PreOrderListing listing = getOneListing(orderTracker.getListingId());
+                PreOrderListing listing = getOneListingFromHistory(orderTracker.getListingId());
 
                 List<PreOrderListing> listings = new ArrayList<>();
                 listings.add(listing);
@@ -370,8 +441,6 @@ public class ListingService {
             JsonObject jsonMsgObj = jsonReader.readObject();
 
             EntityDetails ent = new EntityDetails();
-            ent.setUuid(entry.getKey());
-            ent.setUuid(entry.getKey());
             ent.setUen(jsonMsgObj.getString("uen", null)); // Use default null for missing keys
             ent.setIssuanceAgencyId(jsonMsgObj.getString("issuanceAgencyId", null));
             ent.setUenStatus(jsonMsgObj.getString("uenStatus", null));
@@ -382,7 +451,9 @@ public class ListingService {
                     : null);
             ent.setRegStreetName(jsonMsgObj.getString("regStreetName", null));
             ent.setRegPostalCode(jsonMsgObj.getString("regPostalCode", null));
-
+            ent.setSellerId(jsonMsgObj.getString("sellerId", null));
+            ent.setSellerEmail(jsonMsgObj.getString("sellerEmail", null));
+            ent.setSellerName(jsonMsgObj.getString("sellerName", null));
             listDetails.add(ent);
         }
 
@@ -450,5 +521,95 @@ public class ListingService {
 
         listingRepo.saveUserPurchases(userId, finalJsonObject);
 
+    }
+
+    public void setBuyerConfirmSalesComplete(String userId, String orderId, String listingId) {
+        List<Orders> buyerlist = getBuyerPurchases(userId);
+        for (Orders order : buyerlist) {
+            if (order.getOrderId().equals(orderId)) {
+                List<PreOrderListing> pol = order.getListing();
+                for (PreOrderListing preOrderListing : pol) {
+                    if (preOrderListing.getId().equals(listingId)) {
+                        preOrderListing.setBuyerConfirmSalesComplete(true);
+                    }
+                    continue;
+                }
+            }
+            continue;
+        }
+
+        JsonArrayBuilder ordersArrayBuilder = Json.createArrayBuilder();
+
+        for (Orders order : buyerlist) {
+
+            Instant instant2 = order.getOrderDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+            JsonObjectBuilder orderJsonBuilder = Json.createObjectBuilder();
+            orderJsonBuilder.add("orderId", order.getOrderId());
+            orderJsonBuilder.add("orderDate", instant2.toEpochMilli());
+            JsonArrayBuilder listingsArrayBuilder = Json.createArrayBuilder();
+            for (PreOrderListing listing : order.getListing()) {
+
+                Instant instant = listing.getDeadline().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+                JsonObject listingJson = Json.createObjectBuilder()
+                        .add("id", listing.getId())
+                        .add("title", listing.getTitle())
+                        .add("content", listing.getContent())
+                        .add("image", listing.getImage())
+                        .add("category", listing.getCategory())
+                        .add("sellerId", listing.getSellerId())
+                        .add("price", listing.getPrice())
+                        .add("qty", listing.getQty())
+                        .add("stripeProductId", listing.getStripeProductId())
+                        .add("deadline", instant.toEpochMilli())
+                        .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                        .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete())
+                        .build();
+
+                listingsArrayBuilder.add(listingJson);
+                updateSellerOrder(userId, listing, listing.getQty(), order.getOrderId(),
+                        listing.getSellerConfirmSalesComplete(), listing.getBuyerConfirmSalesComplete());
+            }
+
+            orderJsonBuilder.add("listings", listingsArrayBuilder);
+            ordersArrayBuilder.add(orderJsonBuilder.build());
+
+        }
+
+        JsonObjectBuilder finalJsonObjectBuilder = Json.createObjectBuilder();
+        finalJsonObjectBuilder.add("orders", ordersArrayBuilder);
+
+        JsonObject finalJsonObject = finalJsonObjectBuilder.build();
+
+        listingRepo.saveUserPurchases(userId, finalJsonObject);
+
+    }
+
+    public void deleteListing(String id) {
+        listingRepo.deleteListing(id);
+
+        List<PreOrderListing> list = getAllListing();
+
+        list.removeIf(listing -> listing.getId().equals(id));
+
+        for (PreOrderListing listing : list) {
+
+            Instant instant = listing.getDeadline().atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder()
+                    .add("title", listing.getTitle())
+                    .add("content", listing.getContent())
+                    .add("image", listing.getImage())
+                    .add("category", listing.getCategory())
+                    .add("sellerId", listing.getSellerId())
+                    .add("stripeProductId", listing.getStripeProductId())
+                    .add("price", listing.getPrice())
+                    .add("deadline", instant.toEpochMilli())
+                    .add("buyerConfirmSalesComplete", listing.getBuyerConfirmSalesComplete())
+                    .add("sellerConfirmSalesComplete", listing.getSellerConfirmSalesComplete());
+
+            listingRepo.saveToRedis(jsonObjectBuilder.build(), listing.getId());
+        }
     }
 }

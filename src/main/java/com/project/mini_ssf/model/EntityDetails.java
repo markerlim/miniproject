@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class EntityDetails {
 
-    private String uuid;
     private String uen;
     private String issuanceAgencyId;
     private String uenStatus;
@@ -13,6 +12,9 @@ public class EntityDetails {
     private LocalDate uenIssueDate;
     private String regStreetName;
     private String regPostalCode;
+    private String sellerId;
+    private String sellerEmail;
+    private String sellerName;
 
     public EntityDetails(){
 
@@ -62,6 +64,14 @@ public class EntityDetails {
         return uenIssueDate;
     }
 
+    @Override
+    public String toString() {
+        return "EntityDetails [uen=" + uen + ", issuanceAgencyId=" + issuanceAgencyId + ", uenStatus=" + uenStatus
+                + ", entityName=" + entityName + ", entityType=" + entityType + ", uenIssueDate=" + uenIssueDate
+                + ", regStreetName=" + regStreetName + ", regPostalCode=" + regPostalCode + ", sellerId=" + sellerId
+                + ", sellerEmail=" + sellerEmail + ", sellerName=" + sellerName + "]";
+    }
+
     public void setUenIssueDate(LocalDate uenIssueDate) {
         this.uenIssueDate = uenIssueDate;
     }
@@ -82,12 +92,29 @@ public class EntityDetails {
         this.regPostalCode = regPostalCode;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getSellerId() {
+        return sellerId;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
     }
+
+    public String getSellerEmail() {
+        return sellerEmail;
+    }
+
+    public void setSellerEmail(String sellerEmail) {
+        this.sellerEmail = sellerEmail;
+    }
+
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
+
     
 }
