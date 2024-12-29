@@ -42,10 +42,13 @@
           <div th:each="item : ${item}" class="card">
             <a th:href="@{'/buyer/home/product/'+${item.id}}">
             <img th:src="${item.image}" alt="Item Image" class="card-image" />
+          </a>
             <div class="card-content">
+              <a th:href="@{'/buyer/home/product/'+${item.id}}">
               <h2 th:text="${item.title}" class="card-title"></h2>
               <p th:text="${item.content}" class="card-description"></p>
               <p th:text="'$' + ${item.price}" class="card-price"></p>
+            </a>
               <form th:action="@{/add-to-cart}" method="post">
                 <input type="hidden" th:value="${item.id}" name="id" />
                 <input type="hidden" th:value="${item.title}" name="title" />
@@ -95,7 +98,6 @@
                 </div>
               </form>
             </div>
-          </a>
           </div>
         </div>
     </div>
